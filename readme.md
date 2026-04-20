@@ -9,6 +9,7 @@ A curated collection of Agent skills for the tools and workflows I use most. Eac
 | [WordPress CLI](skills/wordpress-cli/SKILL.md) | WP-CLI commands for managing WordPress — plugins, themes, users, database, content, cache, and more |
 | [WP VIP CLI](skills/wp-vip-cli/SKILL.md) | VIP-CLI for local dev environments (`vip dev-env`) and remote VIP Platform commands (`vip wp`) |
 | [1Password CLI](skills/1password-cli/SKILL.md) | `op inject` for securely populating config and `.env` files from vault secrets |
+| [add-mcp](skills/add-mcp/SKILL.md) | One-command MCP server install across Claude Code, Cursor, VS Code, Codex, Gemini CLI, Goose, OpenCode, Zed, Claude Desktop |
 
 ## References
 
