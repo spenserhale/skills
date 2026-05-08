@@ -12,6 +12,7 @@ A curated collection of Agent skills for the tools and workflows I use most. Eac
 | [add-mcp](skills/add-mcp/SKILL.md) | One-command MCP server install across Claude Code, Cursor, VS Code, Codex, Gemini CLI, Goose, OpenCode, Zed, Claude Desktop |
 | [agent-native-cli-creator](skills/agent-native-cli-creator/SKILL.md) | Best practices for designing CLIs that AI agents can drive reliably — non-interactive flags, structured output (TOON / JSON / CSV), enumerated errors, idempotent mutations, profiles, `--wait`, three-layer introspection |
 | [Vite+ CLI](skills/viteplus-cli/SKILL.md) | Vite+ (`vp`) monorepo task runner and packager — `vp create`, `vp dev`, `vp build`, `vp run`, `vp pack` for mixed browser-app and Node-CLI workspaces with pnpm |
+| [WP Components](skills/wp-components/SKILL.md) | `@wordpress/components` reference for Gutenberg block-editor UI — picking the right component, inspector controls, toolbars, modals, and per-component docs in `references/` |
 
 ## References
 
