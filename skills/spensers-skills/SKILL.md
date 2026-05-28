@@ -62,6 +62,7 @@ Ask the user whether they want it installed globally or just for the current pro
 | `viteplus-cli` | Vite+ (`vp`) monorepo task runner and packager for mixed browser-app and Node-CLI workspaces |
 | `wp-components` | `@wordpress/components` reference for Gutenberg block-editor UI |
 | `agents-init` | Scaffold a project for all AI coding agents — AGENTS.md router, docs/ policies, .agents/skills/ workflows |
+| `doc-it` | Document the current work using this project's established process — asks once if no process is defined yet |
 
 Always fetch the live index first — this table may be stale.
 
