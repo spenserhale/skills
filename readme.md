@@ -16,6 +16,8 @@ A curated collection of Agent skills for the tools and workflows I use most. Eac
 | [agents-init](skills/agents-init/SKILL.md) | Scaffold a project for all AI coding agents — creates `AGENTS.md` router, `docs/` policy files, `.agents/skills/` workflows, and a `CLAUDE.md` adapter |
 | [doc-it](skills/doc-it/SKILL.md) | Document the current work using this project's established process (markdown, Confluence, Notion, changelog, etc.) — asks once to set it up if no process is defined yet |
 | [Spenser's Skills](skills/spensers-skills/SKILL.md) | Find and install skills from this repo — searches the index and runs `npx skills add spenserhale/skills@<skill>` |
+| [mcp-creator](skills/mcp-creator/SKILL.md) | Build MCP servers — overview + router into the official spec (architecture, transports, resources, prompts, auth, client features) with an opinionated best-practices guide; hands off tools to `mcp-tools-creator` |
+| [mcp-tools-creator](skills/mcp-tools-creator/SKILL.md) | Design MCP tools agents use reliably — `domain_verb_noun` naming, intent over CRUD, strong schemas, contextful returns, error/annotation patterns; spec + opinionated best-practices |
 
 ## References
 
