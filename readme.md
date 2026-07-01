@@ -40,21 +40,37 @@ npx skills add spenserhale/skills --global --agent '*' -y \
   --skill mcp-tools-creator
 ```
 
-## Project skills
+## WordPress project skills
 
-Install per project (drop the `--global` flag) in the repos where they apply.
+For WordPress repos. Install per project (no `--global` flag).
 
 | Skill | Description |
 |-------|-------------|
 | [WordPress CLI](skills/wordpress-cli/SKILL.md) | WP-CLI commands for managing WordPress — plugins, themes, users, database, content, cache, and more |
 | [WP VIP CLI](skills/wp-vip-cli/SKILL.md) | VIP-CLI for local dev environments (`vip dev-env`) and remote VIP Platform commands (`vip wp`) |
 | [WP Components](skills/wp-components/SKILL.md) | `@wordpress/components` reference for Gutenberg block-editor UI — picking the right component, inspector controls, toolbars, modals, and per-component docs in `references/` |
+
+**Install all WordPress skills** into the current repo:
+
+```sh
+npx skills add spenserhale/skills --agent '*' -y \
+  --skill wordpress-cli \
+  --skill wp-vip-cli \
+  --skill wp-components
+```
+
+## Project skills
+
+Install per project (no `--global` flag) in the repos where they apply.
+
+| Skill | Description |
+|-------|-------------|
 | [Vite+ CLI](skills/viteplus-cli/SKILL.md) | Vite+ (`vp`) monorepo task runner and packager — `vp create`, `vp dev`, `vp build`, `vp run`, `vp pack` for mixed browser-app and Node-CLI workspaces with pnpm |
 
 **Install a project skill** into the current repo (example):
 
 ```sh
-npx skills add spenserhale/skills --skill wordpress-cli
+npx skills add spenserhale/skills --skill viteplus-cli
 ```
 
 ## References
