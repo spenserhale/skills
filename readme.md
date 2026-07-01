@@ -7,6 +7,17 @@ Skills come in two flavors:
 - **User skills** are agnostic and useful across projects — install them once to your user profile.
 - **Project skills** are tied to a specific framework or task — install them per project, in the repos where they apply.
 
+## Recommended workflow bundles
+
+These live in their own repos (they're coupled, multi-skill workflows rather than single skills) but are the development loops I reach for most. Both are de-hooked, on-demand clones of the same **spec → plan → implement → verify** workflow — pick by how much you want to be in the loop:
+
+| Bundle | Trigger | Use it when |
+|--------|---------|-------------|
+| [agentic-driven-development](https://github.com/spenserhale/agentic-driven-development) | `/agentic-driven-development <task>` | You want it **unattended** — it researches, decides for itself (recording an Assumptions & Decisions log), builds, and opens a PR with no human in the loop. Great for firing off several in the background. |
+| [human-driven-development](https://github.com/spenserhale/human-driven-development) | `/human-driven-development <task>` | You want to **stay in the loop** — it brainstorms with you and pauses for approval at every gate (design, spec, plan, and the final merge/PR choice). |
+
+Each repo's README covers install (as flat `npx skills` collections today; may move to plugin-based installs). Skills are prefixed `add-` / `hdd-` respectively so both can be installed side by side.
+
 ## User skills
 
 Install once to your user profile; available in every project.
