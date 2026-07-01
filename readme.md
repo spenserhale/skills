@@ -19,6 +19,7 @@ A curated collection of Agent skills for the tools and workflows I use most. Eac
 | [mcp-creator](skills/mcp-creator/SKILL.md) | Build MCP servers — overview + router into the official spec (architecture, transports, resources, prompts, auth, client features) with an opinionated best-practices guide; hands off tools to `mcp-tools-creator` |
 | [mcp-tools-creator](skills/mcp-tools-creator/SKILL.md) | Design MCP tools agents use reliably — `domain_verb_noun` naming, intent over CRUD, strong schemas, contextful returns, error/annotation patterns; spec + opinionated best-practices |
 | [repo-explorer](skills/repo-explorer/SKILL.md) | Clone and inspect external repositories in a reusable `~/.explore/repos` cache without cluttering the workspace — plus symlinking a project's gitignored `refs/example-repo` into the cache as `source` |
+| [aaa](skills/aaa/SKILL.md) | Arrange · Act · Assert (`/aaa`) — a lightweight three-step loop for one-shot tasks (coding or not): gather context + plan, do the work inline, then prove it worked (tests, dry run, browser, data check). Loops back to Arrange with the failure as new context when validation fails |
 
 ## References
 
