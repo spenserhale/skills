@@ -36,7 +36,9 @@ description: <one-line description used for skill activation>
 ## Adding a New Skill
 
 1. Create `skills/<skill-name>/SKILL.md` with the frontmatter and sections above
-2. Add an entry to the table in `readme.md`
+2. Add an entry to `readme.md`, in the table that matches the skill's scope:
+   - **User skills** — agnostic, useful across projects (install once to the user profile). Also add the skill name to the `--skill` list in the "Install / update all user skills" command block.
+   - **Project skills** — tied to a specific framework or task (installed per project).
 
 ## Conventions
 
