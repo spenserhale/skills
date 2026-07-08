@@ -30,6 +30,8 @@ Install once to your user profile; available in every project.
 | [Spenser's Skills](skills/spensers-skills/SKILL.md) | Find and install skills from this repo — searches the index and runs `npx skills add spenserhale/skills@<skill>` |
 | [agents-init](skills/agents-init/SKILL.md) | Scaffold a project for all AI coding agents — creates `AGENTS.md` router, `docs/` policy files, `.agents/skills/` workflows, and a `CLAUDE.md` adapter |
 | [add-mcp](skills/add-mcp/SKILL.md) | One-command MCP server install across Claude Code, Cursor, VS Code, Codex, Gemini CLI, Goose, OpenCode, Zed, Claude Desktop |
+| [Codex CLI](skills/codex-cli/SKILL.md) | Drive OpenAI's Codex CLI as a delegated sub-agent — `codex exec` non-interactively, capture the result from stdout/JSON/schema, and control sandbox, approvals, model, and sessions |
+| [OpenCode CLI](skills/opencode-cli/SKILL.md) | Drive the OpenCode terminal agent as a delegated sub-agent — `opencode run` non-interactively, pipe context via stdin, capture stdout/JSON, and control model, agent, `--auto`, and sessions |
 | [1Password CLI](skills/1password-cli/SKILL.md) | `op inject` for securely populating config and `.env` files from vault secrets |
 | [agent-native-cli-creator](skills/agent-native-cli-creator/SKILL.md) | Best practices for designing CLIs that AI agents can drive reliably — non-interactive flags, structured output (TOON / JSON / CSV), enumerated errors, idempotent mutations, profiles, `--wait`, three-layer introspection |
 | [mcp-creator](skills/mcp-creator/SKILL.md) | Build MCP servers — overview + router into the official spec (architecture, transports, resources, prompts, auth, client features) with an opinionated best-practices guide; hands off tools to `mcp-tools-creator` |
@@ -45,6 +47,8 @@ npx skills add spenserhale/skills --global --agent '*' -y \
   --skill spensers-skills \
   --skill agents-init \
   --skill add-mcp \
+  --skill codex-cli \
+  --skill opencode-cli \
   --skill 1password-cli \
   --skill agent-native-cli-creator \
   --skill mcp-creator \
