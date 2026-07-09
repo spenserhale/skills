@@ -17,14 +17,18 @@ Do **not** launch the bare `opencode` TUI — it's interactive and blocks. Use `
 
 ## Start with help
 
-Flags change between releases. Confirm before relying on them:
+Flags and provider IDs change between releases — **confirm against the installed binary before relying on anything below.** A wrong flag makes `opencode run` exit 1 and dump the help text (e.g. older docs mention `-q/--quiet`, which does **not** exist in current releases like 1.17.x).
 
 ```bash
-opencode run --help
-opencode --help
+opencode --version         # know which version's flags you're dealing with
+opencode run --help        # authoritative flag list for this install
+opencode models            # enumerate the exact valid provider/model strings (see Auth)
+opencode auth list         # which provider credentials are authenticated
 ```
 
-Auth is per-provider: `opencode auth login` (interactive, run once by the user). List/manage with `opencode auth list`.
+Auth is per-provider: `opencode auth login` (interactive, run once by the user). List with `opencode auth list`.
+
+⚠️ **One provider family can expose several distinct provider IDs.** `opencode auth list` may show, e.g., both "Z.AI" and "Z.AI Coding Plan" as separate credentials — these map to *different* model-string prefixes (`zai/glm-5.2` vs `zai-coding-plan/glm-5.2`), each with its own billing/quota. Picking the wrong one can fail silently or expensively (one may be out of balance while the other works). Always cross-check the exact string against `opencode models` before assuming `-m provider/model` is correct — don't guess the prefix.
 
 ## Core command
 
@@ -34,7 +38,7 @@ opencode run "add a null check in" src/parser.ts   # extra args concatenate into
 ```
 
 - Result → stdout, then exits. Capture with `result=$(opencode run "..." )`.
-- Add `-q, --quiet` to suppress the spinner/log chrome in scripts.
+- In `run` mode stdout is already just the agent's answer (no spinner chrome) — there is no `--quiet` flag. To *see* internal logs for debugging, add `--print-logs` (and optionally `--log-level DEBUG`); by default logs are suppressed, not printed.
 
 ## Getting the result back
 
@@ -58,6 +62,21 @@ opencode run --format json "list all TODO comments" > todos.json
 
 ⚠️ Known limitation: if the agent runs a command that needs mid-run input (sudo password, SSH passphrase, `apt`/`npm` confirmation), the process can hang — OpenCode can't pipe a response back. Prefer non-interactive commands in the task, or pre-approve/pre-auth so nothing prompts.
 
+## Diagnosing a stuck / silent run
+
+A run that produces a header line (e.g. `build · glm-5.2`) and then **nothing for minutes looks identical to a hang but usually isn't**. On an API error (out of balance, rate limit, bad key) OpenCode **silently retries with exponential backoff** (roughly +3s, +7s, +16s, +30s…) and does **not** surface the error to stdout/stderr by default — so a caller can't tell "still working" from "stuck retrying a call that will never succeed." Because this skill is about *unattended* delegation, guard every call:
+
+- **Always bound the call** with a timeout so a retry loop can't spin forever with zero output:
+  ```bash
+  timeout 300 opencode run --auto -m zai-coding-plan/glm-5.2 "..." > out.md 2>err.log
+  ```
+  A non-zero exit from `timeout` (124) tells you it was killed — treat that as "investigate," not "done."
+- **If it goes quiet longer than expected, re-run with logs on** to see whether it's genuinely hung or retrying an API failure:
+  ```bash
+  opencode run --print-logs --log-level DEBUG -m <provider/model> "..."
+  ```
+  Look for lines like `AI_APICallError: Insufficient balance …` with climbing retry timestamps — that's an auth/billing problem (often the wrong provider-ID prefix, see Auth), not a code problem. Fix the credential/model string rather than waiting.
+
 ## Key flags
 
 | Flag | Short | Purpose |
@@ -69,7 +88,8 @@ opencode run --format json "list all TODO comments" > todos.json
 | `--dir` | | Working directory to run in |
 | `--file` | `-f` | Attach file(s) to the message |
 | `--format` | | `default` or `json` |
-| `--quiet` | `-q` | Suppress spinner/log output |
+| `--print-logs` | | Print internal logs to stderr (for debugging; off by default) |
+| `--log-level` | | `DEBUG` \| `INFO` \| `WARN` \| `ERROR` — pair with `--print-logs` |
 | `--session` | `-s` | Continue a specific session ID |
 | `--continue` | `-c` | Resume the last session |
 | `--fork` | | Branch off the continued session |
