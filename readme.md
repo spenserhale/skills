@@ -81,6 +81,7 @@ Install per project (no `--global` flag) in the repos where they apply.
 | Skill | Description |
 |-------|-------------|
 | [Vite+ CLI](skills/viteplus-cli/SKILL.md) | Vite+ (`vp`) monorepo task runner and packager — `vp create`, `vp dev`, `vp build`, `vp run`, `vp pack` for mixed browser-app and Node-CLI workspaces with pnpm |
+| [Actions Pattern](skills/actions-pattern/SKILL.md) | Design, implement, refactor, and review focused Laravel action classes, with conditional guidance for the `lorisleiva/laravel-actions` package |
 
 **Install a project skill** into the current repo (example):
 
