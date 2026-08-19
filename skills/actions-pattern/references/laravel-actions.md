@@ -15,7 +15,7 @@ php artisan help make:action
 Install only when requested:
 
 ```bash
-composer require lorisleiva/laravel-actions
+composer require lorisleiva/laravel-actions:^2.0
 ```
 
 Prefer the installed package's source/help and the matching official documentation over remembered flags. The durable concepts below target the 2.x line.
@@ -37,9 +37,9 @@ class PublishArticle
 {
     use AsAction;
 
-    public function handle(User $author, Article $article): Article
+    public function handle(User $author, Article $article, bool $notifySubscribers): Article
     {
-        $article->publishFor($author);
+        $article->publishFor($author, notifySubscribers: $notifySubscribers);
 
         return $article->refresh();
     }
@@ -50,9 +50,9 @@ Run it through the container-aware helpers:
 
 ```php
 $action = PublishArticle::make(); // app(PublishArticle::class)
-$article = $action->handle($author, $article);
+$article = $action->handle($author, $article, true);
 
-$article = PublishArticle::run($author, $article);
+$article = PublishArticle::run($author, $article, true);
 ```
 
 Dependency injection is preferable when the caller already resolves through the container. Avoid `new PublishArticle(...)` in application code when doing so would bypass injected dependencies or package fakes.
@@ -81,7 +81,11 @@ public function rules(): array
 
 public function asController(ActionRequest $request, Article $article): Article
 {
-    return $this->handle($request->user(), $article);
+    return $this->handle(
+        $request->user(),
+        $article,
+        (bool) $request->validated('notify_subscribers'),
+    );
 }
 
 public function htmlResponse(Article $article): RedirectResponse
@@ -107,6 +111,8 @@ SendTeamReportEmail::dispatchAfterResponse($team);
 Do not call `dispatch(SendTeamReportEmail::make())`; the package needs its job decorator. Use `makeJob()` inside Laravel chains and batches:
 
 ```php
+use Illuminate\Support\Facades\Bus;
+
 Bus::chain([
     BuildTeamReport::makeJob($team),
     SendTeamReportEmail::makeJob($team),
@@ -122,7 +128,7 @@ public function asJob(Team $team): void
 }
 ```
 
-Use the package's documented job properties or `configureJob()` for queue, connection, retries, backoff, timeout, middleware, uniqueness, tags, and display name. Confirm the installed version's API before adding advanced configuration.
+Dispatch/PendingDispatch configuration or `configureJob()` covers connection, queue, delay, middleware/chain, and decorator settings. Retry properties/hooks cover tries, exceptions, backoff, timeout, and retry-until. `getJobMiddleware()` returns middleware. Uniqueness requires implementing `ShouldBeUnique` plus the package's unique-ID and expiry hooks. Horizon tags/display use `getJobTags()` and `getJobDisplayName()`. Verify these APIs against the installed version before adding advanced configuration.
 
 Queue dispatch from inside a database transaction must follow Laravel's after-commit behavior when the job reads committed state. Make retryable work idempotent; uniqueness and overlap middleware control concurrency but do not replace business idempotency.
 
@@ -131,6 +137,8 @@ Queue dispatch from inside a database transaction must follow Laravel's after-co
 Register the action as a listener and map event data only when its signature differs from `handle()`:
 
 ```php
+use Illuminate\Support\Facades\Event;
+
 Event::listen(TaxiRequested::class, SendOfferToNearbyDrivers::class);
 
 public function asListener(TaxiRequested $event): void
@@ -180,11 +188,13 @@ PublishArticle::shouldRun()
     ->andReturn($article);
 ```
 
-Use `shouldNotRun()`, `partialMock()`, `spy()`, or `allowToRun()` when that interaction style makes the caller test clearer. Clear long-lived fake state when a custom test lifecycle can leak it.
+Use `shouldNotRun()`, `partialMock()`, `spy()`, or `allowToRun()` when that interaction style makes the caller test clearer. Call `clearFake()` when a custom test lifecycle could leak long-lived fake state.
 
 For queued actions, use the package assertion helpers because Laravel queues a decorator rather than the action class directly:
 
 ```php
+use Illuminate\Support\Facades\Queue;
+
 Queue::fake();
 
 SendTeamReportEmail::dispatch($team);
