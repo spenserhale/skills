@@ -184,7 +184,7 @@ Test `handle()` as real application behavior. Use package fakes at caller bounda
 ```php
 PublishArticle::shouldRun()
     ->once()
-    ->with($author, $article)
+    ->with($author, $article, true)
     ->andReturn($article);
 ```
 
