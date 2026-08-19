@@ -77,7 +77,7 @@ An orchestration action may inject smaller actions or domain services. Keep the 
 - Put `DB::transaction()` around the complete set of writes that must succeed or fail together, usually in the outer orchestration action. Do not wrap every action automatically.
 - Do not catch an exception only to return `false` or `null`. Let meaningful domain/framework exceptions propagate unless this action can actually recover.
 - Defer mail, broadcasts, webhooks, and queued follow-up work until a transaction commits when consumers must not observe rolled-back state.
-- Design actions that can run on a queue for safe retries: use idempotency keys, unique constraints, state checks, or queue uniqueness as the task requires.
+- Design queueable actions for safe retries with true idempotency: use idempotency keys, unique database constraints, or guarded state transitions. Treat queue uniqueness and overlap controls as complementary concurrency protection, not an idempotency guarantee.
 
 ## Refactor into an action
 
@@ -112,4 +112,3 @@ An orchestration action may inject smaller actions or domain services. Keep the 
 - [Action Pattern in Laravel: Concept, Benefits, Best Practices](https://nabilhassen.com/action-pattern-in-laravel-concept-benefits-best-practices)
 - [Understanding the Action Pattern in Laravel](https://medium.com/@harryespant/understanding-the-action-pattern-in-laravel-a-cleaner-way-to-organize-your-code-3c7f04666c23)
 - [Laravel Actions: One class, one task](https://www.laravelactions.com/2.x/one-class-one-task.html)
-
