@@ -128,7 +128,7 @@ public function asJob(Team $team): void
 }
 ```
 
-Dispatch/PendingDispatch configuration or `configureJob()` covers connection, queue, delay, middleware/chain, and decorator settings. Retry properties/hooks cover tries, exceptions, backoff, timeout, and retry-until. `getJobMiddleware()` returns middleware. Uniqueness requires implementing `ShouldBeUnique` plus the package's unique-ID and expiry hooks. Horizon tags/display use `getJobTags()` and `getJobDisplayName()`. Verify these APIs against the installed version before adding advanced configuration.
+Dispatch/PendingDispatch configuration or `configureJob()` covers connection, queue, delay, middleware/chain, and decorator settings. Retry properties/hooks cover tries, exceptions, backoff, timeout, and retry-until. `getJobMiddleware()` returns middleware. Implementing Laravel's `ShouldBeUnique` contract enables uniqueness; the package's `$jobUniqueId` / `getJobUniqueId()` and `$jobUniqueFor` / `getJobUniqueFor()` hooks optionally customize the unique identifier and duration. Horizon tags/display use `getJobTags()` and `getJobDisplayName()`. Verify these APIs against the installed version before adding advanced configuration.
 
 Queue dispatch from inside a database transaction must follow Laravel's after-commit behavior when the job reads committed state. Make retryable work idempotent; uniqueness and overlap middleware control concurrency but do not replace business idempotency.
 
@@ -175,7 +175,7 @@ Register it the same way the local Laravel version registers commands, or use th
 
 Use `AsAction` by default. Cherry-pick `AsObject`, `AsController`, `AsListener`, `AsJob`, `AsCommand`, or `AsFake` only when the class needs one slice or the combined trait introduces a real method conflict.
 
-`WithAttributes` is optional and is not included in `AsAction`. Prefer ordinary typed parameters/DTOs unless unified attributes solve a demonstrated cross-context validation or migration need already present in the project.
+`WithAttributes` is available since package version 2.1, is optional, and is not included in `AsAction`. Prefer ordinary typed parameters/DTOs unless unified attributes solve a demonstrated cross-context validation or migration need already present in the project.
 
 ## Testing
 
