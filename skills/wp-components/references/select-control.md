@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-selectco
 
 # SelectControl
 
+## Contents
+
+- Design guidelines
+- Development guidelines
+- Related components
+
 SelectControl allow users to select from a single or multiple option menu. It functions as a wrapper around the browser's native `<select>` element.
 
 ![A “Link To” select with “none” selected.](https://wordpress.org/gutenberg/files/2018/12/select.png)

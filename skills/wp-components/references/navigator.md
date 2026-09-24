@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-navigato
 
 # `Navigator`
 
+## Contents
+
+- Hierarchical `path`s
+- Height and animations
+- Individual components
+
 `Navigator` is a collection components that allow rendering nested views/panels/menus (via the `Navigator.Screen` component) and navigate between them (via the `Navigator.Button` and `Navigator.BackButton` components).
 
 ## Usage

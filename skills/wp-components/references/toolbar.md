@@ -8,6 +8,15 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-toolbar-
 
 # Toolbar
 
+## Contents
+
+- Usage
+- Toolbar Props
+- ToolbarButton Props
+- ToolbarGroup Props
+- ToolbarItem
+- ToolbarDropdownMenu
+
 Toolbar is a horizontal bar of buttons and controls used to group related actions. It provides proper accessibility semantics including roving tabindex keyboard navigation.
 
 ## Usage

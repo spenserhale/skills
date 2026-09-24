@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-circular
 
 # `CircularOptionPicker`
 
+## Contents
+
+- Usage
+- Props
+- Subcomponents
+
 <div class="callout callout-alert">
 This component is not exported, and therefore can only be used internally to the `@wordpress/components` package.
 </div>

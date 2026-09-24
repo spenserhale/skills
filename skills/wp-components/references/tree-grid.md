@@ -8,6 +8,11 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-treegrid
 
 # TreeGrid
 
+## Contents
+
+- Development guidelines
+- Related components
+
 <div class="callout callout-alert">
 This feature is still experimental. “Experimental” means this is an early implementation subject to drastic and breaking changes.
 </div>

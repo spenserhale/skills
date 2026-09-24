@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-snackbar
 
 # Snackbar
 
+## Contents
+
+- Design guidelines
+- Development guidelines
+- Related components
+
 Use Snackbars to communicate low priority, non-interruptive messages to the user.
 
 ## Design guidelines

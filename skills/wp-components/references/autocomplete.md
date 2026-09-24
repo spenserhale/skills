@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-autocomp
 
 # Autocomplete
 
+## Contents
+
+- Props
+- Autocompleters
+- Usage
+
 This component is used to provide autocompletion support for a child input component.
 
 ## Props

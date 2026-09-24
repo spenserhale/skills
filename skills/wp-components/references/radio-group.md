@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-radiogro
 
 # RadioGroup
 
+## Contents
+
+- Design guidelines
+- Development guidelines
+- Related components
+
 <div class="callout callout-alert">
 This component is deprecated. Consider using `RadioControl` or `ToggleGroupControl` instead.
 </div>

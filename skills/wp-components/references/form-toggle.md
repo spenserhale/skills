@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-formtogg
 
 # FormToggle
 
+## Contents
+
+- Design guidelines
+- Development guidelines
+- Related components
+
 FormToggle switches a single setting on or off.
 
 ![On and off FormToggles. The top toggle is on, while the bottom toggle is off.](https://wordpress.org/gutenberg/files/2019/01/Toggle.jpg)

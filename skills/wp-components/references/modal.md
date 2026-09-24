@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-modal--d
 
 # Modal
 
+## Contents
+
+- Design guidelines
+- Development guidelines
+- Related components
+
 Modals give users information and choices related to a task they’re trying to accomplish. They can contain critical information, require decisions, or involve multiple tasks.
 
 ![An alert modal for trashing a post](https://wordpress.org/gutenberg/files/2019/04/Modal.png)

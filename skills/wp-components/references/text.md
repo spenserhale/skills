@@ -8,6 +8,11 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-text--do
 
 # Text
 
+## Contents
+
+- Usage
+- Props
+
 <div class="callout callout-alert">
 This feature is still experimental. “Experimental” means this is an early implementation subject to drastic and breaking changes.
 </div>

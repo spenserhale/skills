@@ -8,6 +8,11 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-dropdown
 
 # Dropdown
 
+## Contents
+
+- Usage
+- Props
+
 Dropdown is a React component to render a button that opens a floating content modal when clicked.
 
 This component takes care of updating the state of the dropdown menu (opened/closed), handles closing the menu when clicking outside and uses render props to render the button and the content.

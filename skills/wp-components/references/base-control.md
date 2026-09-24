@@ -8,6 +8,11 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-basecont
 
 # BaseControl
 
+## Contents
+
+- Props
+- Subcomponents
+
 <!-- This file is generated automatically and cannot be edited directly. Make edits via TypeScript types and TSDocs. -->
 
 <p class="callout callout-info">See the <a href="https://wordpress.github.io/gutenberg/?path=/docs/components-basecontrol--docs">WordPress Storybook</a> for more detailed, interactive documentation.</p>

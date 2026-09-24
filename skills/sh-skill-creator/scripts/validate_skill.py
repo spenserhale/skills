@@ -242,8 +242,8 @@ def check_frontmatter(fm: dict, skill_dir: Path, rep: Report) -> None:
         rep.info("when_to_use is Claude Code only; consider folding its triggers into description so every harness sees them")
 
 
-def check_body(body: str, skill_dir: Path, fm: dict, rep: Report) -> list[Path]:
-    """Check the markdown body. Returns the list of referenced local files that exist."""
+def check_body(body: str, skill_dir: Path, fm: dict, rep: Report) -> tuple[list[Path], bool]:
+    """Check the markdown body. Returns (referenced local files that exist, whether a lookup rule was found)."""
     lines = body.splitlines()
     n = len(lines)
     if n > BODY_HARD_LINES:
@@ -283,9 +283,12 @@ def check_body(body: str, skill_dir: Path, fm: dict, rep: Report) -> list[Path]:
     referenced: list[Path] = []
     seen: set[str] = set()
     targets = [(m.group(1), "link") for m in MD_LINK.finditer(prose)] + [(m.group(1), "mention") for m in BACKTICK_PATH.finditer(prose)]
+    lookup_rule = bool(re.search(r"references?/[<{*]", prose))
     for t, kind in targets:
         if re.match(r"^[a-z]+://", t) or t.startswith(("mailto:", "#", "$", "{")):
             continue
+        if re.search(r"[<{*]", t):
+            continue  # a template such as references/<name>.md is a lookup rule, not a file
         t_clean = t.split("#")[0].rstrip("/")
         if t_clean in seen or not t_clean:
             continue
@@ -313,10 +316,10 @@ def check_body(body: str, skill_dir: Path, fm: dict, rep: Report) -> list[Path]:
             referenced.append(p)
             if p.suffix == ".md" and len(Path(t_clean).parts) > 2:
                 rep.warn(f"'{t_clean}' is nested more than one folder deep; keep references one hop from SKILL.md")
-    return referenced
+    return referenced, lookup_rule
 
 
-def check_references(skill_dir: Path, referenced: list[Path], rep: Report) -> None:
+def check_references(skill_dir: Path, referenced: list[Path], lookup_rule: bool, rep: Report) -> None:
     ref_dirs = [d for d in (skill_dir / "references", skill_dir / "reference") if d.is_dir()]
     md_files: list[Path] = []
     for d in ref_dirs:
@@ -335,8 +338,10 @@ def check_references(skill_dir: Path, referenced: list[Path], rep: Report) -> No
         if n > REFERENCE_TOC_LINES and not re.search(r"^##+\s*(contents|table of contents)\b", text, re.I | re.M):
             no_toc.append(rel)
     AGG = 5  # above this many, one summary line reads better than a wall
-    if len(unlinked) > AGG:
-        rep.warn(f"{len(unlinked)} reference files are not individually linked from SKILL.md ({', '.join(unlinked[:3])}, ...). Fine when the body gives a lookup rule such as references/<topic>.md; otherwise link each with a when-to-read sentence", "references/")
+    if len(unlinked) > AGG and lookup_rule:
+        rep.info(f"{len(unlinked)} reference files are reached through the body's lookup rule rather than individual links", "references/")
+    elif len(unlinked) > AGG:
+        rep.warn(f"{len(unlinked)} reference files are not individually linked from SKILL.md ({', '.join(unlinked[:3])}, ...). Give a lookup rule such as references/<topic>.md in the body, or link each with a when-to-read sentence", "references/")
     else:
         for rel in unlinked:
             rep.warn("not linked from SKILL.md; the agent will never know when to read it", rel)
@@ -436,8 +441,8 @@ def validate(skill_dir: Path) -> Report:
         rep.error(f"frontmatter parse error: {e}")
         return rep
     check_frontmatter(fm, skill_dir, rep)
-    referenced = check_body(body, skill_dir, fm, rep)
-    check_references(skill_dir, referenced, rep)
+    referenced, lookup_rule = check_body(body, skill_dir, fm, rep)
+    check_references(skill_dir, referenced, lookup_rule, rep)
     check_scripts(skill_dir, rep)
     check_layout(skill_dir, fm, rep)
     return rep

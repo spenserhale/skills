@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-customse
 
 # CustomSelectControlV2
 
+## Contents
+
+- Usage
+- Components and Sub-components
+- `CustomSelectControlV2.Item`
+
 Used to render a customizable select control component.
 
 ## Development guidelines

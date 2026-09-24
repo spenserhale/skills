@@ -8,6 +8,14 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-navigati
 
 # Navigation
 
+## Contents
+
+- Usage
+- Navigation Props
+- Navigation Menu Props
+- Navigation Group Props
+- Navigation Item Props
+
 <div class="callout callout-alert">
 This component is deprecated. Consider using `Navigator` instead.
 </div>

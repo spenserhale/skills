@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-querycon
 
 # QueryControls
 
+## Contents
+
+- Usage
+- Multiple category selector
+- Props
+
 ## Development Guidelines
 
 ### Usage

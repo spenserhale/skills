@@ -8,6 +8,11 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-palettee
 
 # PaletteEdit
 
+## Contents
+
+- Usage
+- Props
+
 `PaletteEdit` allows users to edit color and gradient palettes. It provides an interface for adding, removing, renaming, and modifying colors or gradients in a palette.
 
 ## Usage

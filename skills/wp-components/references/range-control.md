@@ -8,6 +8,13 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-rangecon
 
 # RangeControl
 
+## Contents
+
+- Design guidelines
+- Development guidelines
+- Props
+- Related components
+
 RangeControls are used to make selections from a range of incremental values.
 
 ![A RangeControl for volume](https://make.wordpress.org/design/files/2018/12/rangecontrol.png)

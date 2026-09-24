@@ -8,6 +8,11 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-colorpal
 
 # ColorPalette
 
+## Contents
+
+- Usage
+- Props
+
 `ColorPalette` allows the user to pick a color from a list of pre-defined color entries.
 
 ## Usage

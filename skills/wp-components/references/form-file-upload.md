@@ -8,6 +8,17 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-formfile
 
 # FormFileUpload
 
+## Contents
+
+- `__next40pxDefaultSize`
+- `accept`
+- `children`
+- `icon`
+- `multiple`
+- `onChange`
+- `onClick`
+- `render`
+
 <!-- This file is generated automatically and cannot be edited directly. Make edits via TypeScript types and TSDocs. -->
 
 <p class="callout callout-info">See the <a href="https://wordpress.github.io/gutenberg/?path=/docs/components-formfileupload--docs">WordPress Storybook</a> for more detailed, interactive documentation.</p>

@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-textcont
 
 # TextControl
 
+## Contents
+
+- Design guidelines
+- Development guidelines
+- Related components
+
 TextControl components let users enter and edit text.
 
 ![Unfilled and filled TextControl components](https://make.wordpress.org/design/files/2019/03/TextControl.png)

@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-notice--
 
 # Notice
 
+## Contents
+
+- Design guidelines
+- Development guidelines
+- Related components
+
 Use Notices to communicate prominent messages to the user.
 
 ![Notice component](https://make.wordpress.org/design/files/2019/03/Notice-Screenshot-alt.png)

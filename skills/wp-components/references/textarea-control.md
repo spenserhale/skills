@@ -8,6 +8,13 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-textarea
 
 # TextareaControl
 
+## Contents
+
+- Design guidelines
+- Anatomy
+- Development guidelines
+- Related components
+
 TextareaControls are TextControls that allow for multiple lines of text, and wrap overflow text onto a new line. They are a fixed height and scroll vertically when the cursor reaches the bottom of the field.
 
 ![An empty TextareaControl, and a focused TextareaControl with some content entered.](https://wordpress.org/gutenberg/files/2019/01/TextareaControl.png)

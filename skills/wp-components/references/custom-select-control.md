@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-customse
 
 # CustomSelectControl
 
+## Contents
+
+- Design guidelines
+- Development guidelines
+- Related components
+
 `CustomSelectControl` allows users to select an item from a single-option menu just like [`SelectControl`](/packages/components/src/select-control/readme.md), with the addition of being able to provide custom styles for each item in the menu. This means it does not use a native `<select>`, so should only be used if the custom styling is necessary.
 
 ## Design guidelines

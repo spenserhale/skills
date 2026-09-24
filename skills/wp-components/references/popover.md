@@ -8,6 +8,11 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-popover-
 
 # Popover
 
+## Contents
+
+- Usage
+- Props
+
 `Popover` renders its content in a floating modal. If no explicit anchor is passed via props, it anchors to its parent element by default.
 
 The behavior of the popover when it exceeds the viewport's edges can be controlled via its props.

@@ -8,6 +8,13 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-togglegr
 
 # ToggleGroupControl
 
+## Contents
+
+- Usage
+- ToggleGroupControl Props
+- ToggleGroupControlOption Props
+- ToggleGroupControlOptionIcon Props
+
 ToggleGroupControl is a form component that lets users choose options represented as visual toggles. It functions like a segmented control or button group where only one option can be selected at a time.
 
 ## Usage

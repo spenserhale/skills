@@ -8,6 +8,11 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-tabpanel
 
 # TabPanel
 
+## Contents
+
+- Design guidelines
+- Development guidelines
+
 TabPanel is a React component to render an ARIA-compliant TabPanel.
 
 TabPanels organize content across different screens, data sets, and interactions. It has two sections: a list of tabs, and the view to show when tabs are chosen.

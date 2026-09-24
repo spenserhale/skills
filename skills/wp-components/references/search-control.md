@@ -8,6 +8,11 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-searchco
 
 # SearchControl
 
+## Contents
+
+- Development guidelines
+- Related components
+
 SearchControl components let users display a search control.
 
 Check out the [Storybook page](https://wordpress.github.io/gutenberg/?path=/docs/components-searchcontrol--docs) for a visual exploration of this component.

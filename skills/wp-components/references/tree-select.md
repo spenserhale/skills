@@ -8,6 +8,25 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-treesele
 
 # TreeSelect
 
+## Contents
+
+- `__next40pxDefaultSize`
+- `children`
+- `disabled`
+- `hideLabelFromVision`
+- `help`
+- `label`
+- `labelPosition`
+- `noOptionLabel`
+- `onChange`
+- `options`
+- `prefix`
+- `selectedId`
+- `size`
+- `suffix`
+- `tree`
+- `variant`
+
 <!-- This file is generated automatically and cannot be edited directly. Make edits via TypeScript types and TSDocs. -->
 
 <p class="callout callout-info">See the <a href="https://wordpress.github.io/gutenberg/?path=/docs/components-treeselect--docs">WordPress Storybook</a> for more detailed, interactive documentation.</p>

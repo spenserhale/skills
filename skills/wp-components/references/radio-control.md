@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-radiocon
 
 # RadioControl
 
+## Contents
+
+- Design guidelines
+- Development guidelines
+- Related components
+
 Use radio buttons when you want users to select one option from a set, and you want to show them all the available options at once.
 
 ![](https://make.wordpress.org/design/files/2018/11/radio.png)

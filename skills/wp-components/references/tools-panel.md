@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-toolspan
 
 # ToolsPanel
 
+## Contents
+
+- Usage
+- ToolsPanel Props
+- ToolsPanelItem Props
+
 ToolsPanel is a container component designed for block support controls in the inspector sidebar. It provides a dropdown menu to show/hide individual controls and reset them to their default values.
 
 ## Usage

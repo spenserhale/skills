@@ -8,6 +8,11 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-menuitem
 
 # MenuItem
 
+## Contents
+
+- Usage
+- Props
+
 MenuItem is a component which renders a button intended to be used in combination with the [DropdownMenu component](/packages/components/src/dropdown-menu/README.md).
 
 ## Usage

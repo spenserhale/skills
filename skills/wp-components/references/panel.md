@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-panel--d
 
 # Panel
 
+## Contents
+
+- Design guidelines
+- Development guidelines
+- Related components
+
 Panels expand and collapse multiple sections of content.
 
 ![](https://make.wordpress.org/design/files/2019/03/panel.png)

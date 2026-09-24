@@ -8,6 +8,11 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-slotfill
 
 # Slot/Fill
 
+## Contents
+
+- Usage
+- Props
+
 `Slot` and `Fill` are a pair of components which enable developers to render React UI elsewhere in a React element tree, a pattern often referred to as "portal" rendering. It is a pattern for component extensibility, where a single `Slot` may be occupied by multiple `Fill`s rendered in different parts of the application.
 
 Slot/Fill was originally inspired by the [`react-slot-fill` library](https://github.com/camwest/react-slot-fill).

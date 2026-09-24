@@ -8,6 +8,13 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-confirmd
 
 # `ConfirmDialog`
 
+## Contents
+
+- Usage
+- Custom Types
+- Props
+- Best practices
+
 <div class="callout callout-alert">
 This feature is still experimental. "Experimental" means this is an early implementation subject to drastic and breaking changes.
 </div>

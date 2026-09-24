@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-checkbox
 
 # CheckboxControl
 
+## Contents
+
+- Design guidelines
+- Development guidelines
+- Related components
+
 Checkboxes allow the user to select one or more items from a set.
 
 ![Selected and unselected checkboxes](https://make.wordpress.org/design/files/2019/02/CheckboxControl.png)

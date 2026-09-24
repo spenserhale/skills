@@ -8,6 +8,12 @@ storybook: https://wordpress.github.io/gutenberg/?path=/docs/components-combobox
 
 # ComboboxControl
 
+## Contents
+
+- Design guidelines
+- Development guidelines
+- Related components
+
 `ComboboxControl` is an enhanced version of a [`SelectControl`](/packages/components/src/select-control/README.md), with the addition of being able to search for options using a search input.
 
 ## Design guidelines
