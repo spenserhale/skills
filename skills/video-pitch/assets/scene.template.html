@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>scene</title>
+<!-- Optional webfont: <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap"> -->
+<style>
+  :root {
+    --bg: #0b1020; --fg: #f5f7fb; --muted: #aab4c8; --accent: #5eb1ff; --mono: "SF Mono", Menlo, Consolas, monospace;
+    --font: Inter, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    --ease-in: cubic-bezier(.2,.8,.2,1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--fg); font-family: var(--font); position: relative; }
+  /* One beat = one full-bleed layer. Each starts hidden; the timeline turns it on and off. */
+  .beat { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 8vmin 9vmin; opacity: 0; }
+  .beat.on { opacity: 1; }
+  .big { font-size: 9vmin; font-weight: 700; letter-spacing: -0.035em; line-height: 1.02; max-width: 88%; text-wrap: balance; }
+  .line { font-size: 3.4vmin; color: var(--muted); margin-top: 3vmin; max-width: 78%; }
+  .kicker { color: var(--accent); font-size: 2.4vmin; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; margin-bottom: 2.4vmin; }
+  /* Per-element entrances: driven by t inside the beat via data-in="seconds" */
+  [data-in] { opacity: 0; transform: translateY(24px); }
+  [data-in].in { opacity: 1; transform: none; }
+  /* Editorial frame: corner labels and a progress hairline. Remove if the brand does not want it. */
+  .frame { position: absolute; inset: 0; pointer-events: none; font-family: var(--mono); font-size: 1.7vmin; color: var(--muted); }
+  .frame .tl { position: absolute; top: 3.5vmin; left: 4vmin; } .frame .tr { position: absolute; top: 3.5vmin; right: 4vmin; }
+  .frame .bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--accent); width: 0; }
+  /* A mechanism example: a counter and filling bars. Build these from divs and SVG, never stock images. */
+  .bars { display: flex; gap: 1.2vmin; align-items: flex-end; height: 28vmin; margin-top: 4vmin; }
+  .bars i { display: block; width: 6vmin; background: var(--accent); border-radius: .6vmin .6vmin 0 0; height: 0; }
+</style>
+</head>
+<body>
+  <!-- BEATS: edit the layers, then the TIMELINE below. Keep at most 8 words on screen per beat. -->
+  <section class="beat" id="b1">
+    <div class="kicker" data-in="0.1">__KICKER__</div>
+    <h1 class="big" data-in="0.3">__HOOK_LINE__</h1>
+  </section>
+  <section class="beat" id="b2">
+    <h1 class="big" data-in="0.1">__PRODUCT_NAME__</h1>
+    <p class="line" data-in="0.6">__ONE_LINE__</p>
+    <div class="bars" data-in="0.9"><i data-h="40"></i><i data-h="65"></i><i data-h="55"></i><i data-h="90"></i><i data-h="100"></i></div>
+  </section>
+  <section class="beat" id="b3">
+    <div class="kicker" data-in="0.1">__CTA_KICKER__</div>
+    <h1 class="big" data-in="0.3">__CTA_LINE__</h1>
+    <p class="line" data-in="0.8">__CTA_SUB__</p>
+  </section>
+  <div class="frame"><span class="tl">__PRODUCT_NAME__</span><span class="tr" id="tc">00:00</span><div class="bar" id="bar"></div></div>
+
+<script>
+// TIMELINE: [beat id, start seconds, end seconds]. Beats may not overlap; the last one holds to the end.
+const TIMELINE = [["b1", 0, 3.5], ["b2", 3.5, 7.5], ["b3", 7.5, 11]];
+// render_scene.mjs sets window.__SCENE_DURATION to the beat length it is rendering; the last beat holds to it.
+const TOTAL = window.__SCENE_DURATION ?? TIMELINE[TIMELINE.length - 1][2];
+TIMELINE[TIMELINE.length - 1][2] = Math.max(TIMELINE[TIMELINE.length - 1][2], TOTAL);
+const ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
+
+function draw(ms) {
+  const t = ms / 1000;
+  for (const [id, a, b] of TIMELINE) {
+    const el = document.getElementById(id);
+    const on = t >= a && t < b;
+    el.classList.toggle("on", on);
+    if (!on) continue;
+    const local = t - a;
+    for (const child of el.querySelectorAll("[data-in]")) {
+      const at = Number(child.dataset.in);
+      const k = ease((local - at) / 0.45);
+      child.style.opacity = k;
+      child.style.transform = `translateY(${(1 - k) * 24}px)`;
+    }
+    for (const bar of el.querySelectorAll(".bars i")) {
+      const k = ease((local - 1.0) / 1.2);
+      bar.style.height = `${Number(bar.dataset.h) * k}%`;
+    }
+  }
+  document.getElementById("bar").style.width = `${Math.min(100, (t / TOTAL) * 100)}%`;
+  const s = Math.floor(t); document.getElementById("tc").textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+</script>
+</body>
+</html>

@@ -14,7 +14,7 @@ The demo is the proof. It shows the real product doing the thing the narration c
 
 ## Sizing the recording
 
-Read the demo beat's `duration` from `<out>/work/timing.json` before recording. Plan waits so the flow takes about that long; `assemble.py` can speed or slow a clip within 0.6x to 2.5x, but real-time footage always looks best. Put a `mark` before the first meaningful action and reference it from the manifest (`"in": {"mark": "flow-start"}`) so the blank lead-in never ships and a re-recording cannot leave stale seconds behind.
+Read the demo beats' durations from `<out>/work/timing.json` before recording; one recording covers all of them, with a `mark` named after each beat (`demo-entry`, `demo-action`, `demo-result`) at the moment that beat's screen appears. Plan waits so the flow takes about that long; `assemble.py` can speed or slow a clip within 0.6x to 2.5x, but real-time footage always looks best. Reference the marks from the manifest (`"in": {"mark": "demo-action"}, "out": {"mark": "demo-result"}`) so the blank lead-in never ships and a re-recording cannot leave stale seconds behind.
 
 ## Web app: record_web_demo.mjs
 
@@ -29,24 +29,26 @@ Read the demo beat's `duration` from `<out>/work/timing.json` before recording. 
   "storage_state": "work/auth.json",
   "steps": [
     {"wait": 700},
-    {"mark": "flow-start"},
+    {"mark": "demo-entry"},
     {"click": "text=Add domain"},
     {"type": ["input[name=domain]", "example.com", 55]},
     {"press": "Enter"},
+    {"mark": "demo-action"},
     {"wait_for": "text=DNS verified"},
     {"wait": 1200},
     {"hover": "text=Launch"},
     {"click": "text=Launch"},
+    {"mark": "demo-result"},
     {"wait_for": "text=Live"},
     {"wait": 1500}
   ]
 }
 ```
 
-3. Run `node scripts/record_web_demo.mjs <out>/work/steps.json --out <out>/work`. It writes `demo.webm` and `marks.json`; the printed marks tell you where the flow starts and ends.
+3. Run `node scripts/record_web_demo.mjs <out>/work/steps.json --out <out>/work`. It writes `demo.webm` and `marks.json`, a flat object of seconds from the recording start (`{"ready": 0.9, "demo-entry": 1.4, "demo-action": 4.2, "end": 11.4}`); `ready` and `end` are added for you, the rest come from your `mark` steps. The `url` may be `file:///path/index.html` for a static site.
 4. Extract one frame (`ffmpeg -ss <t> -i demo.webm -frames:v 1 frame.png`) and look at it. Check the cursor is visible, the UI is legible, and no cookie banner or dev overlay is in shot. Remove overlays with an `eval` step.
 
-Step vocabulary: `wait` (ms), `mark`, `goto`, `hover`, `click`, `fill`, `type` (with per-key delay), `press`, `scroll` (a selector scrolls that element to the top of the viewport; `{"y": px}` scrolls by that many pixels relative to the current position; both smooth, then pause 0.7 s), `wait_for`, `eval`, `screenshot`. Hover, click, and scroll each add roughly 0.3 to 1 s of glide and settle on top of your `wait`s; budget about 2 s of overhead per six actions. Use `type` over `fill` when the viewer should see the text arrive. Add `--headed` to watch a run while debugging selectors.
+Step vocabulary: `wait` (ms), `mark`, `goto`, `hover`, `click`, `fill`, `type` (with per-key delay), `press`, `scroll` (a selector scrolls that element to the top of the viewport; `{"y": px}` scrolls by that many pixels relative to the current position; both smooth, then pause 0.7 s), `wait_for`, `eval`, `screenshot`. Hover, click, and scroll each add roughly 0.3 to 1 s of glide and settle on top of your `wait`s; budget about 2 s of overhead per six actions. Under a sticky header, a top-aligned scroll hides the element's own heading behind the nav; use `{"scroll": {"to": "#sel", "block": "center"}}` instead, and skip scrolling entirely when the flow fits above the fold. Use `type` over `fill` when the viewer should see the text arrive. Add `--headed` to watch a run while debugging selectors.
 
 The script needs `playwright-core` and a Chromium-based browser; no browser download. It looks in `$PLAYWRIGHT_CORE_PATH`, the cwd, the global npm root, and the `playwright-cli` install. Otherwise `npm i -g playwright-core`.
 

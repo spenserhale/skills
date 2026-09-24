@@ -7,6 +7,8 @@
 - Manifest
 - Timing and fitting
 - Cards and motion
+- HTML scenes and the virtual clock
+- Craft rules for anything drawn
 - Captions
 - Music
 - Poster and delivery files
@@ -33,7 +35,7 @@ Copy `assets/manifest.example.json` to `<out>/manifest.json`. Paths are relative
 | `poster` | `{"beat", "offset"}` or `{"time"}`; default is the second beat plus half a second; taken before captions unless `"with_captions": true` |
 | `beats[]` | ordered; `id` must match the script beat ids |
 
-Beat fields: `kind` (`card` or `video`), `src`, and for video `in` and `out` (seconds, or `{"mark": "flow-start", "offset": 0.2}` resolved from `marks`; prefer marks), `fit` (`auto`, `speed`, `trim`, `hold`), `crop` (`x,y,w,h` in source pixels), `inset` (0 to 0.15, frames the clip inside the background). A beat without narration needs `duration`.
+Beat fields: `kind` (`card`, `video`, or `scene`; inferred from the file extension when omitted), `src`, and for video `in` and `out` (seconds, or `{"mark": "flow-start", "offset": 0.2}` resolved from `marks`; prefer marks), `fit` (`auto`, `speed`, `trim`, `hold`), `crop` (`x,y,w,h` in source pixels), `inset` (0 to 0.15, frames the clip inside the background). A beat without narration needs `duration`.
 
 ## Timing and fitting
 
@@ -47,9 +49,31 @@ Cross-fades do not shift beat starts; each segment is extended by the transition
 
 ## Cards and motion
 
-`render_card.py` produces one PNG per card. Pass `--bg --bg2 --fg --muted --accent --font` from the brief's visual identity (any CSS colour syntax works, `oklch()` included, since Chrome renders it; only the manifest `background` pad colour must be hex for ffmpeg) and `--logo` when the config has one. Render one card and look at it before rendering the rest; a missing webfont silently falls back. The product name and date sit at the top so captions never collide with them. Cards get a slow 6 percent push-in by default; `"motion": "none"` for a static card.
+`render_card.py` produces one PNG per card. Pass `--bg --bg2 --fg --muted --accent --font` from `extract_brand.py` or the brief (any CSS colour syntax works, `oklch()` included, since Chrome renders it; only the manifest `background` pad colour must be hex for ffmpeg) and `--logo` when the config has one. When the product uses a webfont, pass `--font-css` with its stylesheet URL (the Google Fonts link `extract_brand.py` reports) so the card loads it. Render one card and look at it before rendering the rest; a missing webfont silently falls back. `--footer` (product name) and `--footer-right` (date or version) sit at the top of the card so captions never collide with them. Cards get a slow 6 percent push-in by default; `"motion": "none"` for a static card.
 
 Card copy is a headline, not the narration: `--title "Domain launches, without the ticket"`, `--subtitle` one short line, `--kicker` the audience or section label.
+
+## HTML scenes and the virtual clock
+
+A `scene` beat is an HTML file rendered frame by frame: the page's `requestAnimationFrame`, timers, `Date`, `performance.now`, and CSS/Web Animations are replaced by a clock that only advances when a frame is requested, so what is on screen is a pure function of time and a render is reproducible. Use it for motion the product cannot show: a counter, a request moving through boxes, a before-and-after, a diff resolving, big type landing word by word. Start from `assets/scene.template.html`: beats are full-bleed layers switched by a `TIMELINE` of seconds, elements enter with `data-in`, and the editorial frame (mono corner labels, progress hairline) is optional. Keep the file self-contained; Google Fonts via `<link>` are fine, external images and scripts are not.
+
+Author the scene's timeline to the beat's duration from `timing.json`; the renderer passes the exact length as `window.__SCENE_DURATION` and the template holds the last layer to it. Before assembling, run:
+
+```bash
+node scripts/render_scene.mjs work/how.html --check 0,1.5,3,4.5
+```
+
+It prints the visible text and background at each timestamp plus any JS errors. Leftover words from an earlier layer, or a timestamp well inside a layer with no text, are the bugs to fix; a sample taken during an intentional entrance (the first few tenths of a layer) is empty by design, so check a little after each layer starts. `assemble.py` calls the renderer itself for `scene` beats (about real time at 30 fps); to preview alone, `node scripts/render_scene.mjs work/how.html --duration 4 --out work/how.mp4`.
+
+Rules the clock imposes: no CSS transitions (they never fire under a seek), no `Math.random` (write a seeded function), no reads of wall-clock time, no `<video>`, `<audio>`, or `<iframe>`. Everything that should leave the screen must be animated out or covered by the next layer's full-bleed background.
+
+## Craft rules for anything drawn
+
+- At most eight words on screen at once; big words that land with weight, then a line that tightens the meaning.
+- One bold background per beat, two colours at most across the film, plus near-black and near-white. Take them from `extract_brand.py`.
+- Ease entrances (`cubic-bezier(.2,.8,.2,1)`), ease-in exits, nothing linear. Entrances under half a second; holds long enough to read at 0.3 s per word.
+- Show the mechanism, not stock imagery. Divs, SVG, and canvas only.
+- Editorial frame is a nice touch, not a requirement: small mono labels in the corners and a progress hairline along the bottom. Drop it when the brand is plain.
 
 ## Captions
 

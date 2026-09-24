@@ -23,6 +23,8 @@ The subject is one thing the audience can act on: a feature, a tool, a workflow,
 | Conversation | "Pitch what we just did" | The transcript: what the user asked for, what changed, what was verified; confirm the user-facing framing before writing |
 | Doc or spec | A Confluence, Notion, or markdown page | The problem statement and the acceptance criteria; ask what actually shipped |
 
+For any site or local HTML, run `python3 scripts/extract_brand.py <url or file>` first: it reports the title, description, headings, the most-used colours as hex (with `oklch()` and `rgb()` converted; CSS variables named `bg`, `text`, `accent`, `primary`, or `brand` are grouped by role, and when no variable names an accent the most-used saturated colour is offered as a guess), Google Fonts families with the stylesheet URL to pass as `--font-css`, `font-family` declarations, and logo candidates. Use its output for the brief's visual identity and for the card flags; it does not run JavaScript, so point it at a built stylesheet when the app is client-rendered.
+
 For a web app, run the flow once with `playwright-cli` before scripting it. Save the snapshot refs or CSS selectors you will click; guessing selectors is the most common reason a recording fails.
 
 ## The six pitch questions
@@ -32,7 +34,7 @@ Write the answers down before scripting. Each answer is one or two sentences.
 1. **Who is watching, and what do they do next?** Name the audience (customer success, sales, support, leadership, a customer) and the action the video should cause (mention it on calls, enable it for an account, approve rollout, try it).
 2. **What was painful before?** The concrete situation the audience recognises: the ticket, the wait, the workaround, the manual step. Use their words, not the engineering description.
 3. **What is it, in one sentence?** Product name, what it does, for whom. No architecture.
-4. **What does the demo show?** Three beats of real use: entry, key action, result. Name the screens or commands.
+4. **What does the demo show?** Three beats of real use: entry, key action, result. Name the screens or commands; each becomes its own narrated beat and recorder mark.
 5. **What changes for the audience?** The so-what: time saved, fewer escalations, a new thing to offer, a risk removed. One claim, with a number when the source has one and no invented number otherwise.
 6. **Where do they get it or learn more?** Plan or rollout status, the doc link, the owner. This is the last line.
 

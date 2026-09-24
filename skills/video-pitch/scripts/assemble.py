@@ -19,6 +19,7 @@ MANIFEST.json shape (paths are relative to the manifest's directory):
                                                                     taken before captions unless "with_captions": true
     "beats": [
       {"id": "hook", "kind": "card", "src": "work/cards/hook.png", "motion": "zoom"},        motion: zoom | none
+      {"id": "how", "kind": "scene", "src": "work/how.html"},                                  HTML rendered frame-exactly by render_scene.mjs
       {"id": "demo", "kind": "video", "src": "work/demo.webm", "in": {"mark": "flow-start"}, "out": {"mark": "end"},
        "fit": "auto" | "speed" | "trim" | "hold", "crop": {"x":0,"y":0,"w":800,"h":450}, "inset": 0.05},
       {"id": "cta", "kind": "card", "src": "work/cards/cta.png", "duration": 3.0}           duration only when no timing entry
@@ -121,6 +122,10 @@ class Assembler:
                 self.durations.append(float(b["duration"]))
             else:
                 die(f"beat {b['id']} has no timing entry and no duration")
+        # narrate.py puts a short lead-in before the first beat; the first visual covers it so every
+        # later beat starts exactly where its narration does and the video is as long as the audio.
+        if self.beats[0]["id"] in self.timing:
+            self.durations[0] += float(self.timing[self.beats[0]["id"]].get("start", 0))
         self.total = sum(self.durations)
         self.enc = ["-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "veryfast" if draft else "medium",
                     "-crf", "23" if draft else "18"]
@@ -149,8 +154,15 @@ class Assembler:
         dur = self.durations[i] + (self.td if i < len(self.beats) - 1 else 0)
         dst = self.work / f"seg-{i:02d}-{beat['id']}.mp4"
         src = self.path(beat["src"])
-        kind = beat.get("kind", "video" if src.suffix.lower() in {".webm", ".mp4", ".mov", ".mkv"} else "card")
+        kind = beat.get("kind")
+        if not kind:
+            kind = {".webm": "video", ".mp4": "video", ".mov": "video", ".mkv": "video", ".html": "scene", ".htm": "scene"}.get(src.suffix.lower(), "card")
         frames = max(1, round(dur * self.fps))
+        if kind == "scene":
+            script = Path(__file__).resolve().parent / "render_scene.mjs"
+            run(["node", str(script), str(src), "--duration", f"{dur:.3f}", "--fps", str(self.fps),
+                 "--width", str(self.w), "--height", str(self.h), "--out", str(dst)])
+            return dst
         if kind == "card":
             if beat.get("motion", "zoom") == "zoom":
                 vf = (f"scale={self.w * 2}:{self.h * 2},zoompan=z='min(1+0.00035*on,1.06)':d={frames}"

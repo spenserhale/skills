@@ -5,8 +5,10 @@ usage: narrate.py SCRIPT.json --out WORKDIR [--provider auto|say|openai|elevenla
                   [--voice NAME] [--rate WPM] [--pad SECONDS] [--min-beat SECONDS] [--lead-in SECONDS]
 
 SCRIPT.json shape:
-  {"beats": [{"id": "hook", "text": "One or two spoken sentences."}, ...],
+  {"beats": [{"id": "hook", "text": "One or two spoken sentences.", "min_duration": 4}, ...],
    "voice": "Samantha", "provider": "say"}          # optional defaults, CLI flags win
+A beat's visual length is its speech plus --pad, or its own "min_duration" when that is longer
+(use it to hold a closing card or give a demo beat room). The first beat starts after --lead-in.
 
 Writes into WORKDIR:
   narration/<id>.wav   one clip per beat, 48 kHz mono

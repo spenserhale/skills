@@ -15,24 +15,23 @@
 //      {"type": ["input[name=domain]", "example.com", 60]},   per-char delay ms, looks human
 //      {"press": "Enter"},
 //      {"scroll": "#pricing"} | {"scroll": {"y": 600}},  smooth scroll: element to top of viewport, or by y pixels (relative)
+//      {"scroll": {"to": "#pricing", "block": "center"}},  element to center (use under sticky headers)
 //      {"wait_for": "text=Live"},                        wait for selector, default 15 s timeout
 //      {"goto": "https://..."},
 //      {"eval": "document.querySelector('.banner')?.remove()"},
 //      {"screenshot": "work/step.png"}
 //    ]}
-// Writes WORKDIR/demo.webm and WORKDIR/marks.json ({"ready": s, "<mark>": s, "end": s}) with times
-// relative to the recording start, so assemble.py can cut with "in"/"out". "ready" is when the first
-// page had fonts and network settled; trim to it to drop the blank lead-in.
+// Writes WORKDIR/demo.webm and WORKDIR/marks.json, a flat object of seconds from the recording start:
+//   {"ready": 0.9, "demo-entry": 1.4, "demo-action": 4.2, "end": 11.4}
+// "ready" (first page settled) and "end" are added automatically; the rest come from your "mark"
+// steps. assemble.py cuts with {"mark": name}. URLs may be http(s) or file:// for a static site.
 //
-// Needs playwright-core (no browser download) and a Chromium-based browser. Resolution order:
-// $PLAYWRIGHT_CORE_PATH, require.resolve from cwd, global npm root, the playwright-cli install.
+// Needs playwright-core (no browser download) and a Chromium-based browser; see pw_resolve.mjs.
 // Install if missing: npm i -g playwright-core
 
-import { createRequire } from "node:module";
-import { execSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync, mkdirSync, renameSync, readdirSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
-import { realpathSync } from "node:fs";
+import { join } from "node:path";
+import { loadPlaywright, launchChrome } from "./pw_resolve.mjs";
 
 const args = process.argv.slice(2);
 if (args.includes("--help") || args.includes("-h")) {
@@ -49,32 +48,6 @@ if (!stepsPath || !outDir) {
   process.exit(2);
 }
 
-function loadPlaywright() {
-  const req = createRequire(import.meta.url);
-  const candidates = [];
-  if (process.env.PLAYWRIGHT_CORE_PATH) candidates.push(process.env.PLAYWRIGHT_CORE_PATH);
-  candidates.push("playwright-core", "playwright");
-  const tryRoot = (cmd) => { try { return execSync(cmd, { stdio: ["ignore", "pipe", "ignore"] }).toString().trim(); } catch { return ""; } };
-  const globalRoot = tryRoot("npm root -g");
-  if (globalRoot) candidates.push(join(globalRoot, "playwright-core"), join(globalRoot, "playwright"));
-  const cliBin = tryRoot(process.platform === "win32" ? "where playwright-cli" : "command -v playwright-cli");
-  if (cliBin) {
-    try {
-      let dir = dirname(realpathSync(cliBin.split("\n")[0]));
-      for (let i = 0; i < 6; i++) {
-        const hit = join(dir, "node_modules", "playwright-core");
-        if (existsSync(hit)) { candidates.push(hit); break; }
-        dir = dirname(dir);
-      }
-    } catch { /* ignore */ }
-  }
-  for (const c of candidates) {
-    try { return req(c); } catch { /* next */ }
-  }
-  console.error("record_web_demo: playwright-core not found. Run: npm i -g playwright-core  (uses the installed Chrome, no browser download)");
-  process.exit(1);
-}
-
 const spec = JSON.parse(readFileSync(stepsPath, "utf8"));
 const { chromium } = loadPlaywright();
 const viewport = spec.viewport ?? { width: 1600, height: 900 };
@@ -85,13 +58,7 @@ mkdirSync(videoDir, { recursive: true });
 // Headless Chrome opens a 800x600 window by default and the screencast letterboxes the page in
 // grey when the viewport is larger than the window, so size the window to the viewport.
 const launchOpts = { headless: !headed, slowMo: spec.slow_mo ?? 0, args: [`--window-size=${viewport.width},${viewport.height}`] };
-let browser;
-try {
-  browser = await chromium.launch({ ...launchOpts, channel: spec.channel ?? "chrome" });
-} catch (e) {
-  try { browser = await chromium.launch(launchOpts); }
-  catch { console.error(`record_web_demo: could not launch a browser: ${e.message}`); process.exit(1); }
-}
+const browser = await launchChrome(chromium, launchOpts);
 const ctx = await browser.newContext({
   viewport,
   deviceScaleFactor: spec.device_scale_factor ?? 1,
@@ -154,6 +121,7 @@ try {
       case "press": await page.keyboard.press(v); break;
       case "scroll":
         if (typeof v === "string") await page.locator(v).first().evaluate((el) => el.scrollIntoView({ behavior: "smooth", block: "start" }));
+        else if (v.to) await page.locator(v.to).first().evaluate((el, block) => el.scrollIntoView({ behavior: "smooth", block }), v.block ?? "center");
         else await page.evaluate(({ y }) => window.scrollBy({ top: y, behavior: "smooth" }), v);
         await page.waitForTimeout(700);
         break;

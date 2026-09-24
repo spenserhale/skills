@@ -3,12 +3,14 @@
 
 usage: render_card.py --out card.png --title "Text" [--subtitle S] [--kicker K] [--footer F] [--footer-right R]
                       [--logo path.png|svg] [--format landscape|vertical|square | --width W --height H]
-                      [--bg #hex] [--bg2 #hex] [--fg #hex] [--muted #hex] [--accent #hex] [--font "CSS font stack"]
-                      [--template assets/card.html] [--keep-html]
+                      [--bg colour] [--bg2 colour] [--fg colour] [--muted colour] [--accent colour] [--font "CSS font stack"]
+                      [--font-css URL] [--template assets/card.html] [--keep-html]
 
 Fills the placeholders in assets/card.html, writes a temp HTML next to the PNG, and screenshots it
 with the first browser found: $CHROME_PATH, then Chrome, Chromium, Edge, or Brave in the usual places.
-Text is HTML-escaped; use --font to match the product's typeface (must be installed on this machine).
+Text is HTML-escaped. Colours accept any CSS syntax (hex, rgb(), oklch()). --font sets the stack; when the
+product's face is a webfont, pass --font-css with its stylesheet URL (a Google Fonts css2 link works) and
+the card loads it over the network instead of falling back to a system font.
 """
 from __future__ import annotations
 
@@ -69,7 +71,7 @@ def data_uri(path: Path) -> str:
 def screenshot(browser: str, html_path: Path, png: Path, width: int, height: int, transparent: bool = False) -> None:
     cmd = [browser, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run",
            "--no-default-browser-check", "--disable-extensions", "--force-device-scale-factor=1",
-           f"--window-size={width},{height}", f"--screenshot={png}", "--virtual-time-budget=1500"]
+           f"--window-size={width},{height}", f"--screenshot={png}", "--virtual-time-budget=4000"]
     if transparent:
         cmd.append("--default-background-color=00000000")
     cmd.append(html_path.resolve().as_uri())
@@ -92,6 +94,7 @@ def main() -> None:
     ap.add_argument("--height", type=int)
     for k in DEFAULT_STYLE:
         ap.add_argument(f"--{k}", default=None)
+    ap.add_argument("--font-css", default=None, help="stylesheet URL that loads the webfont named in --font")
     ap.add_argument("--template", type=Path, default=Path(__file__).resolve().parent.parent / "assets" / "card.html")
     ap.add_argument("--keep-html", action="store_true", help="leave the rendered HTML beside the PNG")
     args = ap.parse_args()
@@ -112,6 +115,7 @@ def main() -> None:
         "__KICKER__": html.escape(args.kicker), "__FOOTER__": html.escape(args.footer),
         "__FOOTER_RIGHT__": html.escape(args.footer_right),
         "__LOGO__": data_uri(args.logo) if args.logo else "",
+        "__FONT_LINK__": f'<link rel="stylesheet" href="{html.escape(args.font_css, quote=True)}">' if args.font_css else "",
         "__LOGO_CLASS__": "" if args.logo else "hidden",
         "__BODY_CLASS__": "has-logo" if args.logo else "",
         "__KICKER_CLASS__": "" if args.kicker else "hidden",

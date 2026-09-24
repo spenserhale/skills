@@ -11,7 +11,9 @@
   "beats": [
     {"id": "hook", "kind": "card", "src": "work/cards/hook.png"},
     {"id": "what", "kind": "card", "src": "work/cards/what.png"},
-    {"id": "demo", "kind": "video", "src": "work/demo.webm", "in": {"mark": "flow-start"}, "out": {"mark": "end"}, "fit": "auto", "inset": 0.04},
+    {"id": "demo-entry", "kind": "video", "src": "work/demo.webm", "in": {"mark": "demo-entry"}, "out": {"mark": "demo-action"}, "fit": "auto", "inset": 0.04},
+    {"id": "demo-action", "kind": "video", "src": "work/demo.webm", "in": {"mark": "demo-action"}, "out": {"mark": "demo-result"}, "fit": "auto", "inset": 0.04},
+    {"id": "demo-result", "kind": "video", "src": "work/demo.webm", "in": {"mark": "demo-result"}, "out": {"mark": "end"}, "fit": "auto", "inset": 0.04},
     {"id": "cta", "kind": "card", "src": "work/cards/cta.png"}
   ]
 }
