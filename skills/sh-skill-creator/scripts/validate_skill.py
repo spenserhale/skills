@@ -61,7 +61,9 @@ TIME_SENSITIVE = re.compile(r"\b(before|after|as of|until|since)\s+(19|20)\d\d\b
 MD_LINK = re.compile(r"\[[^\]]*\]\(([^)\s#]+)(#[^)]*)?\)")
 BACKTICK_PATH = re.compile(r"`((?:(?:references?|scripts|assets|evals|agents|examples)/[^`\s]+)|(?:[a-z0-9_-]+\.md))`")
 DYNAMIC_CMD = re.compile(r"(^|\s)!`[^`]+`|^```!\s*$", re.M)
-BROAD_TOOLS = re.compile(r"Bash\((\*|[^)]*\*\s*)\)|^\s*Bash\s*$")
+# Flags a blanket grant or a grant to a command that is itself a shell,
+# downloader, deleter, or privilege escalator. `Bash(git clone *)` is fine.
+BROAD_TOOLS = re.compile(r"Bash\(\s*\*?\s*\)|(?:^|\s)Bash(?:\s|$)|Bash\((?:sh|bash|zsh|eval|sudo|curl|wget|rm|python3?|node)\s+\*\)")
 
 
 class Report:
