@@ -1,0 +1,40 @@
+{
+  "skill_name": "video-pitch",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Make a quick 20-second video pitch of this product for our customer success team: why it's useful and a short demo of using it. Output the mp4 in pitch-output/.",
+      "expected_output": "pitch-output/pitch.mp4 about 20 s with narration, burned captions, a real recorded demo of the site, a poster jpg, and share.md; a brief with audience and one claim; the agent looked at stills before delivering.",
+      "files": [],
+      "expectations": [
+        "pitch-output/pitch.mp4 exists, is H.264 with an AAC track, and runs between 15 and 30 seconds",
+        "pitch-output/pitch.jpg exists and matches the video dimensions",
+        "The transcript shows scripts/narrate.py, scripts/record_web_demo.mjs (or build_terminal_page.py), and scripts/assemble.py being run rather than hand-written ffmpeg text filters",
+        "The transcript shows the agent viewing work/stills.png or an extracted frame before saying it is done",
+        "pitch-brief.md names the audience and a single claim, and share.md contains no phrase like 'excited to share'"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We just shipped the `vip domain launch` command. Record a short demo clip with a voiceover I can drop in the #customer-success channel.",
+      "expected_output": "A CLI demo built from a self-playing terminal page with real command output, narrated, assembled to mp4, with a Slack-ready share.md.",
+      "files": [],
+      "expectations": [
+        "A terminal steps JSON with real (not invented) command output is written and rendered with scripts/build_terminal_page.py",
+        "The demo beat narration describes what the terminal shows",
+        "share.md contains a two-line post suitable for a Slack channel"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Turn what we just built into a walkthrough video for stakeholders, vertical format for mobile.",
+      "expected_output": "The agent extracts the subject from the conversation, confirms the audience and claim once, and produces a 1080x1920 pitch with captions positioned for vertical.",
+      "files": [],
+      "expectations": [
+        "The output video is 1080x1920",
+        "Cards were rendered with --format vertical",
+        "The agent asked at most one clarifying question before producing the brief"
+      ]
+    }
+  ]
+}

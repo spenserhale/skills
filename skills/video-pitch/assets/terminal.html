@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>terminal demo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: __WIDTH__px; height: __HEIGHT__px; overflow: hidden; background: __BG__; }
+  body { display: flex; align-items: center; justify-content: center; font-family: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace; }
+  .window {
+    width: 84%; height: 78%;
+    background: #0b1020; color: #e6edf3;
+    border-radius: 14px; box-shadow: 0 30px 80px rgba(0,0,0,.45);
+    display: flex; flex-direction: column; overflow: hidden;
+    border: 1px solid rgba(255,255,255,.08);
+  }
+  .bar { height: 44px; background: #161b2c; display: flex; align-items: center; padding: 0 16px; gap: 8px; flex: none; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .bar .t { margin-left: 12px; color: #8b95a7; font-size: 14px; }
+  pre { flex: 1; padding: 22px 26px; font-size: __FONT_SIZE__px; line-height: 1.5; white-space: pre-wrap; overflow: hidden; }
+  .p { color: __PROMPT_COLOR__; }
+  .c { color: #ffffff; font-weight: 600; }
+  .o { color: #b8c2d3; }
+  .ok { color: #3fb950; }
+  .warn { color: #d29922; }
+  .err { color: #f85149; }
+  .dim { color: #6e7681; }
+  .cursor { display: inline-block; width: 0.6em; height: 1.1em; background: #e6edf3; vertical-align: text-bottom; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+<div class="window">
+  <div class="bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="t">__TITLE__</span></div>
+  <pre id="out"></pre>
+</div>
+<script>
+// Script format: {"prompt": "$ ", "steps": [{"cmd": "...", "delay": 0.4, "type_ms": 45, "output": ["line", ...] | "text", "class": "ok|warn|err|o", "pause": 1.2}]}
+const SCRIPT = __SCRIPT_JSON__;
+const out = document.getElementById("out");
+const prompt = SCRIPT.prompt ?? "$ ";
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+let html = "";
+const cursor = '<span class="cursor"></span>';
+const paint = (tail = cursor) => { out.innerHTML = html + tail; out.scrollTop = out.scrollHeight; };
+async function typeLine(cmd, typeMs) {
+  html += `<span class="p">${esc(prompt)}</span><span class="c">`;
+  for (const ch of cmd) { html += esc(ch); paint(); await sleep(typeMs); }
+  html += "</span>\n";
+  paint();
+}
+async function play() {
+  window.__done = false;
+  await sleep((SCRIPT.lead_in ?? 0.8) * 1000);
+  for (const step of SCRIPT.steps) {
+    if (step.cmd !== undefined) await typeLine(step.cmd, step.type_ms ?? 45);
+    await sleep((step.delay ?? 0.35) * 1000);
+    const lines = Array.isArray(step.output) ? step.output : (step.output ? String(step.output).split("\n") : []);
+    for (const line of lines) {
+      const m = typeof line === "string" ? { text: line, class: step.class ?? "o" } : line;
+      html += `<span class="${m.class ?? "o"}">${esc(m.text)}</span>\n`;
+      paint();
+      await sleep((step.line_ms ?? 70));
+    }
+    await sleep((step.pause ?? 0.6) * 1000);
+  }
+  html += `<span class="p">${esc(prompt)}</span>`;
+  paint();
+  await sleep((SCRIPT.tail ?? 1.5) * 1000);
+  window.__done = true;
+  document.title = "done";
+}
+play();
+</script>
+</body>
+</html>

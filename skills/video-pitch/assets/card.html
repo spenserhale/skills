@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>__TITLE__</title>
+<style>
+  :root {
+    --bg: __BG__;
+    --bg2: __BG2__;
+    --fg: __FG__;
+    --muted: __MUTED__;
+    --accent: __ACCENT__;
+    --font: __FONT__;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: __WIDTH__px; height: __HEIGHT__px; overflow: hidden; }
+  body {
+    font-family: var(--font);
+    color: var(--fg);
+    background: radial-gradient(120% 120% at 20% 10%, var(--bg2) 0%, var(--bg) 60%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8vmin 9vmin;
+    -webkit-font-smoothing: antialiased;
+  }
+  .logo { position: absolute; top: 6vmin; left: 9vmin; height: 5.5vmin; }
+  .logo img { height: 100%; width: auto; display: block; }
+  .kicker {
+    color: var(--accent);
+    font-size: 2.6vmin;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 2.4vmin;
+  }
+  .title {
+    font-size: clamp(5vmin, 8.2vmin, 10vmin);
+    line-height: 1.06;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    max-width: 88%;
+    text-wrap: balance;
+  }
+  .subtitle {
+    margin-top: 3vmin;
+    font-size: 3.4vmin;
+    line-height: 1.35;
+    color: var(--muted);
+    max-width: 78%;
+    text-wrap: pretty;
+  }
+  /* Product name and date sit at the top so burned-in captions at the bottom never collide. */
+  .footer {
+    position: absolute;
+    top: 6vmin;
+    left: 9vmin;
+    right: 9vmin;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 2.4vmin;
+    color: var(--muted);
+  }
+  .footer .bar { width: 8vmin; height: 0.5vmin; background: var(--accent); border-radius: 1vmin; margin-bottom: 1.2vmin; }
+  .has-logo .footer { left: 24vmin; }
+  .hidden { display: none; }
+</style>
+</head>
+<body class="__BODY_CLASS__">
+  <div class="logo __LOGO_CLASS__"><img src="__LOGO__" alt=""></div>
+  <div class="kicker __KICKER_CLASS__">__KICKER__</div>
+  <h1 class="title">__TITLE__</h1>
+  <p class="subtitle __SUBTITLE_CLASS__">__SUBTITLE__</p>
+  <div class="footer __FOOTER_CLASS__"><div><div class="bar"></div>__FOOTER__</div><div>__FOOTER_RIGHT__</div></div>
+</body>
+</html>
