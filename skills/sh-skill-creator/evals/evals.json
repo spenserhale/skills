@@ -1,0 +1,45 @@
+{
+  "skill_name": "sh-skill-creator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I keep re-explaining to you how we run database migrations in this repo (always dry-run first with `bin/migrate --plan`, then apply, then run the smoke tests in tests/smoke). Turn that into a skill I can install with npx skills.",
+      "expected_output": "A folder <name>/SKILL.md with a trigger-first description, a short body with the three steps and completion criteria, the exact commands as low-freedom steps, and evals/evals.json with at least three prompts. No README inside the skill.",
+      "files": [],
+      "expectations": [
+        "Creates <name>/SKILL.md where frontmatter name equals the folder name",
+        "Description is third person and contains a 'Use when' style trigger clause naming migrations, schema changes, or the migrate command",
+        "Description does not enumerate the three workflow steps",
+        "Body is under 150 lines and gives the dry-run, apply, and smoke-test commands verbatim",
+        "evals/evals.json exists with at least three evals",
+        "scripts/validate_skill.py was run on the result and reports zero errors"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "My wp-components skill (skills/wp-components/SKILL.md in this repo) never fires. When I ask about inspector controls or a Gutenberg modal it just answers from memory. Fix the triggering.",
+      "expected_output": "A rewritten description that front-loads the leading concept, adds the user's real phrasing (inspector controls, modal, Gutenberg, @wordpress/components), adds a pushy 'even if' clause and a near-miss hand-off, plus a set of should/should-not trigger prompts to test with.",
+      "files": [],
+      "expectations": [
+        "Only the description changes materially; the body is not rewritten",
+        "New description mentions at least three concrete trigger phrases the user used",
+        "New description includes a near-miss boundary or hand-off to a sibling skill",
+        "A trigger eval set with should_trigger true and false entries is produced, and the false entries share vocabulary with the skill",
+        "The agent proposes testing on a fresh agent rather than declaring the fix done"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Before I install github.com/someone/deploy-helper-skill into the client repo, clone it and check it over. It has a scripts/ folder and asks for allowed-tools Bash(*).",
+      "expected_output": "An audit report ordered by severity with path:line, what each finding does, and what to change; a clear install / do-not-install recommendation.",
+      "files": [],
+      "expectations": [
+        "Runs scripts/validate_skill.py on the skill before the manual pass",
+        "Flags allowed-tools Bash(*) as a High finding with a scoped alternative",
+        "Reads every file under scripts/ and reports network calls, env reads, and writes outside the working directory",
+        "Searches SKILL.md and references for instructions aimed at the model unrelated to deploying",
+        "Ends with an explicit recommendation and does not install anything with a Critical or High finding"
+      ]
+    }
+  ]
+}

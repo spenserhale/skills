@@ -1,0 +1,14 @@
+{
+  "skill_name": "__NAME__",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "A realistic user prompt, as they would type it, with file names and context",
+      "expected_output": "What success looks like, in one or two sentences",
+      "files": [],
+      "expectations": [
+        "An objectively checkable statement about the output or the transcript"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+interface:
+  display_name: "__DISPLAY_NAME__"
+  short_description: "__SHORT_DESCRIPTION__"
+  default_prompt: "Use $__NAME__ to __DEFAULT_PROMPT__"
+__POLICY__

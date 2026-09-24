@@ -36,6 +36,7 @@ Install once to your user profile; available in every project.
 | [agent-native-cli-creator](skills/agent-native-cli-creator/SKILL.md) | Best practices for designing CLIs that AI agents can drive reliably — non-interactive flags, structured output (TOON / JSON / CSV), enumerated errors, idempotent mutations, profiles, `--wait`, three-layer introspection |
 | [mcp-creator](skills/mcp-creator/SKILL.md) | Build MCP servers — overview + router into the official spec (architecture, transports, resources, prompts, auth, client features) with an opinionated best-practices guide; hands off tools to `mcp-tools-creator` |
 | [mcp-tools-creator](skills/mcp-tools-creator/SKILL.md) | Design MCP tools agents use reliably — `domain_verb_noun` naming, intent over CRUD, strong schemas, contextful returns, error/annotation patterns; spec + opinionated best-practices |
+| [sh-skill-creator](skills/sh-skill-creator/SKILL.md) | Create, restructure, review, or audit agent skills against a 2026 rule set — trigger-first descriptions, lean bodies, one-level references, evals with a baseline, security audit — with a scaffolder and a spec + house-rules validator |
 
 **Install / update all user skills** (installs any you're missing and updates the rest to latest, across every detected agent):
 
@@ -52,7 +53,8 @@ npx skills add spenserhale/skills --global --agent '*' -y \
   --skill 1password-cli \
   --skill agent-native-cli-creator \
   --skill mcp-creator \
-  --skill mcp-tools-creator
+  --skill mcp-tools-creator \
+  --skill sh-skill-creator
 ```
 
 ## WordPress project skills
