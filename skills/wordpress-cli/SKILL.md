@@ -1,6 +1,6 @@
 ---
 name: wordpress-cli
-description: WP-CLI reference for managing WordPress sites from the command line — plugins, themes, users, database, content, cache, and more.
+description: "WP-CLI (wp) reference for managing WordPress sites from the command line — plugins, themes, users, database, content, cache, and more. Use when the user wants to run or write wp commands, install, activate, or update plugins and themes, create or reset users, export, import, or search-replace the database, flush cache or rewrite rules, run cron events, toggle maintenance mode, update core, or troubleshoot a WordPress site from the terminal, even if they never say WP-CLI. For WordPress VIP sites (vip dev-env locally, vip @app.env remotely), use the wp-vip-cli skill instead."
 ---
 
 # WordPress CLI
@@ -9,12 +9,7 @@ A skill for working with WP-CLI to manage WordPress installations from the termi
 
 ## When to use
 
-Activate this skill when the user asks to:
-
-- Run WordPress management commands (plugins, themes, users, options, database, content, cache, cron)
-- Troubleshoot or inspect a WordPress site from the terminal
-- Perform database exports, imports, or search-replace operations
-- Manage WordPress core updates or maintenance mode
+Any WordPress install that `wp` can reach directly: local, Docker (`--allow-root`), or over SSH. On WordPress VIP, the same `wp` commands run through the wp-vip-cli skill (`vip dev-env exec -- wp ...` locally, `vip @app.env -- wp ...` remotely).
 
 ## Start with `wp help`
 

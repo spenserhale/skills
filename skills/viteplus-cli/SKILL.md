@@ -1,339 +1,54 @@
 ---
 name: viteplus-cli
-description: Vite+ monorepo task runner and packager for mixed browser and Node CLI projects
+description: "Vite+ (vp) task runner and packager reference for monorepos that mix browser apps and Node CLI packages on pnpm workspaces: vp create, dev, build, check, run, pack, migrate, and vpx. Use when the user mentions Vite+, vite-plus, vp, or tsdown, is setting up or working in a monorepo that combines web apps and CLI tools, needs pnpm-workspace.yaml and the workspace: protocol wired up for Vite+, asks about workspace-level task orchestration, task caching, or packaging a CLI or library, or is migrating another tool to Vite+ with vp migrate. Not for plain Vite or pnpm questions where vp is not in play."
 ---
 
 # Vite+ (vp) CLI Reference
 
-Vite+ is a modern task runner and packager designed for monorepos containing both browser apps and Node CLI packages. It unifies the development and build experience across mixed project types while integrating with pnpm workspaces.
+Vite+ is a task runner and packager for monorepos that hold both browser apps and Node CLI packages on top of pnpm workspaces. One `vp run <script>` fans a task out across packages in dependency order with caching; `vp pack` (tsdown) builds the CLI and library packages that `vp build` (Vite) does not.
 
-> **Note:** This skill teaches the essentials of Vite+. For the latest features, configuration options, and updates, consult the official [Vite+ Guide](https://viteplus.dev/guide/) — it's the authoritative source.
+The official [Vite+ Guide](https://viteplus.dev/guide/) is the authoritative source; this skill carries the essentials. Run `vp --help` and `vp <command> --help` before guessing at flags.
 
-## When to use
+## Scope
 
-Activate this skill when:
-- User is setting up or working with a **monorepo combining web apps and CLI tools**
-- User wants to use **`vp create`, `vp dev`, `vp build`, `vp check`, `vp run`, or `vp pack`** commands
-- User needs help **integrating Vite+ with pnpm workspaces** (`pnpm-workspace.yaml`)
-- User is asking about **workspace-level task orchestration**, **task caching**, or **CLI packaging**
-- User mentions **vite-plus**, **vp**, or **tsdown** in the context of monorepo tooling
-- User is migrating from another tool to Vite+ (`vp migrate`)
+Vite+ in a monorepo, and the pnpm workspace wiring it depends on. Plain Vite app questions or pnpm questions with no `vp` in play belong to those tools' own docs or skills.
 
-## Monorepo Structure with Vite+ + pnpm
+## Commands
 
-### Workspace layout
+| Command | Use it for |
+|---------|-----------|
+| `vp create [template]` | Scaffold apps, packages, or a monorepo (`vp create vite:monorepo`) |
+| `vp migrate` | Move an existing repo from another tool to Vite+ |
+| `vp install` | Install dependencies (pnpm wrapper) |
+| `vp dev` / `vp build` | Vite dev server with HMR / production build of web apps to `dist/` |
+| `vp check` | Format, lint, and type checks in one pass |
+| `vp run <script>` | Run a script across packages with caching and dependency ordering |
+| `vp pack` | Build libraries or CLIs with tsdown; `--exe` for a standalone executable |
+| `vpx <command>` | Execute a binary from a package or npm |
 
-Separate browser apps, CLI packages, and shared libraries:
+Flags that decide `vp run` behavior: `-r` all packages in dependency order, `-t` one package plus its dependencies, `-w` root only, `--filter "@my/*"` (pnpm syntax), `--parallel` to ignore ordering, `-v` to see cache hits. Full tables, examples, and the option list: `references/commands.md`.
 
-```text
-repo/
-  pnpm-workspace.yaml
-  package.json (root, with "private": true)
-  apps/
-    web-admin/         # Vite web app
-    web-marketing/     # Vite web app
-    cli-sync/          # Node CLI packaged with vp pack
-    cli-import/        # Node CLI packaged with vp pack
-  packages/
-    ui/                # Shared ESM components
-    core/              # Shared business logic
-    config/            # Shared config
-```
+## Decision rules
 
-### Root pnpm-workspace.yaml
+- Web app (`apps/web-*`): scripts are `vite` / `vite build`; `vp dev` and `vp build` drive them.
+- CLI or library (`apps/cli-*`, `packages/*`): `"type": "module"`, an `exports` map into `dist/`, and `"build": "vp pack"`; configure `pack` (`dts`, `sourcemap`, `minify`, `watch`) in `vite.config.ts`.
+- Standard task names in every package are `dev`, `build`, `check`, `test`, so root scripts can be `vp run dev`, `vp run build`, `vp check`, `vp run test`. Libraries and CLIs skip `dev`.
+- Local dependencies use `workspace:*` or `workspace:^`, never a version number, so they resolve from the workspace and never drift.
+- Shared code lives in `packages/` (`config`, `core`, `ui`) as ESM.
 
-```yaml
-packages:
-  - apps/*
-  - packages/*
-```
+## Gotchas
 
-### Root package.json
-
-```json
-{
-  "name": "my-monorepo",
-  "private": true,
-  "scripts": {
-    "dev": "vp run dev",
-    "build": "vp run build",
-    "check": "vp check",
-    "pack": "vp pack"
-  }
-}
-```
-
-## Core Vite+ Commands
-
-**Reference:** [Vite+ Guide](https://viteplus.dev/guide/)
-
-### Project Setup
-
-| Command | Purpose | Docs |
-|---------|---------|------|
-| `vp create [template]` | Scaffold new apps, packages, or monorepos interactively | [vp create](https://viteplus.dev/guide/create) |
-| `vp migrate` | Migrate from another tool to Vite+ | [vp migrate](https://viteplus.dev/guide/migrate) |
-| `vp install` | Install dependencies (pnpm wrapper) | [vp install](https://viteplus.dev/guide/install) |
-
-### Development and Building
-
-| Command | Purpose | Docs |
-|---------|---------|------|
-| `vp dev` | Start Vite dev server with HMR | [vp dev](https://viteplus.dev/guide/dev) |
-| `vp build` | Production build for web apps (outputs to dist/) | [vp build](https://viteplus.dev/guide/build) |
-| `vp check` | Run format, lint, and type checks together | [vp check](https://viteplus.dev/guide/check) |
-
-### Workspace-level Tasks
-
-| Command | Purpose | Docs |
-|---------|---------|------|
-| `vp run <script>` | Run scripts/tasks across workspaces with built-in caching and dependency ordering | [vp run](https://viteplus.dev/guide/run) |
-| `vp pack` | Build libraries (with `tsdown`) or standalone executables | [vp pack](https://viteplus.dev/guide/pack) |
-| `vpx <command>` | Execute binaries from packages or npm | [vpx](https://viteplus.dev/guide/run) |
-
-### Examples
-
-```bash
-# Create a new monorepo
-vp create vite:monorepo
-
-# Start dev server
-vp dev
-
-# Build production (web apps)
-vp build
-
-# Type-check and lint entire workspace
-vp check
-
-# Run 'test' script in all packages that define it, in dependency order
-vp run test
-
-# Run a task in specific packages
-vp run build --filter "@my/*"
-vp run build --filter "apps/cli-*"
-
-# Run a task and all its dependencies
-vp run build -t
-
-# Package CLI apps or libraries for distribution
-vp pack
-
-# Run with verbose output and see caching info
-vp run build -v
-
-# Install dependencies (wrapper around pnpm)
-vp install
-```
-
-**Key `vp run` options:**
-- `-r` (recursive): Run across all workspace packages in dependency order
-- `-t` (transitive): Run in one package plus all its dependencies
-- `-w`: Target root package only
-- `--filter <pattern>`: Select packages by name/glob (pnpm-compatible syntax like `@my/*`)
-- `-v`: Verbose mode; shows task summaries and cache hits
-- `--concurrency-limit N`: Control simultaneous task execution (default: 4)
-- `--parallel`: Ignore dependencies, run all tasks with unlimited concurrency
-
-## Workspace Dependencies with pnpm
-
-### Using workspace: protocol
-
-In any package's `package.json`, depend on local packages without version numbers:
-
-```json
-{
-  "name": "@acme/cli-sync",
-  "dependencies": {
-    "@acme/core": "workspace:*",
-    "@acme/config": "workspace:^"
-  }
-}
-```
-
-This ensures:
-- Local packages are resolved from the workspace, not npm registry
-- Changes to shared packages are immediately available during development
-- No accidental version mismatches
-
-### Key pnpm workspace settings
-
-- **Root lockfile (default enabled)**: All packages share one `pnpm-lock.yaml` for faster installs and singleton dependencies
-- **linkWorkspacePackages**: Set to `true` in `.npmrc` if you want automatic linking without `workspace:` prefix (less explicit, not recommended)
-
-## Web Apps vs CLI Packages
-
-### Web apps (in `apps/web-*`)
-
-Use native Vite workflow with `vp dev` and `vp build`:
-
-```json
-{
-  "name": "@acme/web-admin",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "check": "tsc --noEmit && eslint src"
-  }
-}
-```
-
-Vite automatically handles:
-- HMR (hot module replacement)
-- CSS/asset bundling
-- Dependency pre-bundling for workspace packages
-
-### CLI packages (in `apps/cli-*` or distributed libraries)
-
-Package as ESM-first TypeScript libraries using `vp pack` (powered by [tsdown](https://viteplus.dev/guide/pack)):
-
-```json
-{
-  "name": "@acme/cli-sync",
-  "type": "module",
-  "exports": {
-    ".": "./dist/index.js",
-    "./cli": "./dist/cli.js"
-  },
-  "scripts": {
-    "build": "vp pack",
-    "check": "tsc --noEmit && eslint src"
-  }
-}
-```
-
-Configure in `vite.config.ts`:
-
-```javascript
-export default {
-  build: {
-    // ... Vite build config for apps
-  },
-  pack: {
-    // Outputs declaration files (.d.ts)
-    dts: true,
-    // Watch mode for development
-    watch: false,
-    // Generate source maps
-    sourcemap: true,
-    // Minify output (optional)
-    minify: true
-  }
-}
-```
-
-Then package with `vp pack`:
-
-```bash
-# Build library/CLI package
-vp pack
-
-# Build with declaration files
-vp pack src/index.ts --dts
-
-# Watch mode for development
-vp pack --watch
-
-# Create standalone executable (experimental)
-vp pack --exe
-```
-
-**`vp pack` includes out-of-the-box:**
-- Declaration file generation (`.d.ts`)
-- Multiple output formats (ESM and CommonJS)
-- Source maps
-- Minification
-- Standalone executable support (via tsdown's `exe` option) — great for distributing CLIs without requiring Node.js
-
-## Important Constraints
-
-### Vite and monorepo dependencies
-
-Vite processes linked workspace packages as source code rather than pre-bundled modules. This works best when those packages are **ESM** (ES modules). If a linked dependency is CommonJS or needs special handling, configure it in your web app's `vite.config.ts`:
-
-```javascript
-export default {
-  optimizeDeps: {
-    include: ['@acme/legacy-cjs-package']
-  },
-  build: {
-    commonjsOptions: {
-      include: ['@acme/legacy-cjs-package']
-    }
-  }
-}
-```
-
-See [Vite Dependency Pre-bundling](https://vite.dev/guide/dep-pre-bundling.html) for details.
-
-### Shared workspace packages best practices
-
-Keep shared internal packages in `packages/` and prefer ESM format:
-- `packages/config` — Shared config schemas or objects
-- `packages/core` — Business logic, API clients, data transformations  
-- `packages/ui` — React/Vue components (if applicable)
-
-Use the [`workspace:` protocol](https://pnpm.io/workspaces#workspace-protocol-workspace) in `package.json` to ensure local resolution:
-
-```json
-{
-  "dependencies": {
-    "@acme/config": "workspace:^",
-    "@acme/core": "workspace:*"
-  }
-}
-```
-
-### pnpm workspace configuration
-
-- **Root lockfile** (enabled by default): All packages share one `pnpm-lock.yaml` for faster installs and singleton dependencies
-- **linkWorkspacePackages**: Defaults to `false`; use explicit `workspace:` ranges for clarity instead of auto-linking
-
-## Standard Task Names
-
-Standardize script names across packages so `vp run` works consistently:
-
-```json
-{
-  "scripts": {
-    "dev": "...",           // Start dev (web) or skip (lib/CLI)
-    "build": "...",         // Build output (web → dist, lib → dist)
-    "check": "...",         // Type-check and lint
-    "test": "..."           // Run unit tests (optional)
-  }
-}
-```
-
-Then at root:
-
-```json
-{
-  "scripts": {
-    "dev": "vp run dev",
-    "build": "vp run build",
-    "check": "vp check",
-    "test": "vp run test"
-  }
-}
-```
+- Vite consumes linked workspace packages as source. A CommonJS package needs `optimizeDeps.include` and `build.commonjsOptions.include` in the consuming web app's `vite.config.ts`, or dev and build behave differently.
+- The root `package.json` is `"private": true`; without it a stray publish ships the whole workspace.
+- `linkWorkspacePackages` defaults to `false`; leave it and use explicit `workspace:` ranges rather than relying on auto-linking.
+- All packages share one root `pnpm-lock.yaml` by default; a per-package lockfile means the workspace setting was changed.
+- `vp pack --exe` is experimental; ship it as an extra, not the only distribution.
+- `--concurrency-limit` defaults to 4; `--parallel` ignores dependency order entirely, so use it only for independent tasks.
 
 ## References
 
-### Vite+ Official
-- **Main Guide**: https://viteplus.dev/guide/
-- **vp create**: https://viteplus.dev/guide/create
-- **vp dev**: https://viteplus.dev/guide/dev
-- **vp build**: https://viteplus.dev/guide/build
-- **vp run**: https://viteplus.dev/guide/run
-- **vp pack** (tsdown): https://viteplus.dev/guide/pack
-- **vp check**: https://viteplus.dev/guide/check
-- **vp migrate**: https://viteplus.dev/guide/migrate
-- **GitHub**: https://github.com/voidzero-dev/vite-plus
-
-### pnpm Workspaces
-- **pnpm Workspaces Guide**: https://pnpm.io/workspaces
-- **workspace: protocol**: https://pnpm.io/workspaces#workspace-protocol-workspace
-
-### Related Tools
-- **Vite Official**: https://vite.dev
-- **Vite Dependency Pre-bundling**: https://vite.dev/guide/dep-pre-bundling.html
+| Read when | File |
+|-----------|------|
+| Looking up a command, its docs link, `vp run` options, or a worked command example | `references/commands.md` |
+| Laying out the repo, writing `pnpm-workspace.yaml`, root scripts, `workspace:` deps, or pnpm settings | `references/workspace-config.md` |
+| Configuring a web app or a CLI/library package, `vp pack` options, or a CommonJS dependency | `references/packaging.md` |

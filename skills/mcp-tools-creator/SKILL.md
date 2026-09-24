@@ -1,6 +1,6 @@
 ---
 name: mcp-tools-creator
-description: Design and implement MCP (Model Context Protocol) tools that AI agents use reliably — choosing what to expose, naming (domain_verb_noun over raw CRUD), JSON Schema inputs, structured outputs, error handling, behavior annotations, and the audit/action wrapper pattern — backed by the official tools specification and an opinionated best-practices guide. Use this skill whenever the user is adding, designing, naming, reviewing, or refactoring MCP tools, deciding which tools a server should expose, writing tool descriptions or inputSchema, shaping tool return values, or asks how to make MCP tools work well for an agent like Claude. For the broader server (transports, resources, prompts, auth, lifecycle), use the mcp-creator skill.
+description: "Design MCP (Model Context Protocol) tools that agents call reliably: what to expose, naming (domain_verb_noun over raw CRUD), inputSchema and structured outputs, errors, annotations, and the action/audit pattern. Use whenever the user is adding, naming, reviewing, or refactoring MCP tools, writing tool descriptions or inputSchema for tools/list, shaping what tools/call returns, or asks why the model keeps misusing a tool, even if they don't say MCP but mean functions Claude will call. For the rest of the server (transports, resources, prompts, auth, lifecycle), use the mcp-creator skill."
 ---
 
 # MCP Tools Creator
@@ -9,20 +9,9 @@ Design the tools an MCP server exposes so a model invokes the **right** tool wit
 
 This skill is the tool-design half of the MCP picture. For the rest of the server — transports, resources, prompts, authorization, lifecycle — use the **`mcp-creator`** skill.
 
-## When to use
+## Scope and hand-offs
 
-Activate this skill when the user is:
-
-- Adding or designing tools on an MCP server (any language; examples here are TypeScript)
-- Deciding **what** tools to expose — which operations become tools, how coarse or fine-grained
-- Naming tools, or debating naming conventions / namespacing
-- Writing tool `description`s or `inputSchema` / `outputSchema`
-- Shaping what a tool **returns** (content vs structured content, how much context)
-- Handling tool errors, or designing behavior **annotations** (read-only, destructive, idempotent, open-world)
-- Reviewing or refactoring an existing tool surface that "the model keeps misusing"
-- Building an action/audit pattern where tools map to business intent
-
-**Hand off:** for transports, resources, prompts, auth, or general server setup, use **`mcp-creator`**. For designing a *CLI* (not an MCP tool), use `agent-native-cli-creator`. For *installing* an existing MCP server into a client, use `add-mcp`.
+Any language is in scope; examples here are TypeScript. For designing a *CLI* (not an MCP tool), use `agent-native-cli-creator`. For *installing* an existing MCP server into a client, use `add-mcp`.
 
 ## The two reference layers
 

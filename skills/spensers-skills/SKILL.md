@@ -7,14 +7,9 @@ description: Find and install skills from Spenser's personal skills repo (github
 
 Discover and install skills from Spenser Hale's personal skills repository at `github.com/spenserhale/skills`.
 
-## When to Use
+## When to use
 
-Activate this skill when the user:
-
-- Asks "find Spenser's skill for X" or "do I have a skill for X"
-- Says "check Spenser's skills" or "look in my skills repo"
-- Wants to install a skill from Spenser's GitHub collection
-- Asks if a skill exists for a tool or workflow Spenser commonly uses
+Scoped to Spenser's repo only. For skills published elsewhere (another author's repo, a marketplace), use that source's own listing and installer instead of this index.
 
 ## Workflow
 

@@ -4,6 +4,20 @@
 >
 > **Source of truth:** the MCP TypeScript schema at `schema/<version>/schema.ts` and the rendered spec at modelcontextprotocol.io. RFC 2119 keywords (MUST / SHOULD / MAY) are the spec's, not mine.
 
+## Contents
+
+- Versioning
+- What a tool is
+- Capability declaration
+- JSON-RPC methods
+- The Tool definition object (`name` rules, `inputSchema`, annotations)
+- `tools/list`
+- `tools/call` (CallToolResult fields, content block types, `outputSchema` and structured content)
+- Error handling: two distinct mechanisms
+- `notifications/tools/list_changed`
+- Security considerations (normative)
+- Differences from 2025-06-18 (tools-relevant)
+
 ## Versioning
 
 - **Target revision: `2025-11-25`** (current latest, released Nov 2025).

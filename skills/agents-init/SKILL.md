@@ -65,37 +65,7 @@ Get a quick thumbs-up before writing files. The user knows their project — the
 
 ### Step 4: Create AGENTS.md
 
-Write `AGENTS.md` to the project root. Target 150–250 lines — shorter is better if the project is small. Here's the structure:
-
-```markdown
-# AGENTS.md
-
-## Purpose
-[One paragraph: what this repo does and what this file is for]
-
-## Quick start
-[The 2–4 commands an agent needs to install deps, run tests, and build — use real commands from the project]
-
-## Repo layout
-[Brief map of directories that matter for coding — src, tests, config, docs, etc.]
-
-## Progressive disclosure
-Before editing, check whether the task touches one of these areas and read the referenced doc first:
-- [Domain]: read `docs/[file].md`
-[One line per domain. Only list files that exist or that you're creating right now.]
-
-## Skills
-Use `.agents/skills/` when the task matches a documented workflow:
-- `.agents/skills/[name]/` — [one-line description]
-[Only include this section if skills actually exist.]
-
-## Done criteria
-Before finishing any task:
-- Run [real test command] and fix failures before declaring done
-- If a check was skipped, say why
-- Flag risky assumptions explicitly
-- Update docs when behavior, architecture, or operational process changes
-```
+Write `AGENTS.md` to the project root. Target 150–250 lines — shorter is better if the project is small. Read `references/agents-md-template.md` when you're about to write the file; it holds the section-by-section structure (Purpose, Quick start, Repo layout, Progressive disclosure, Skills, Done criteria).
 
 Key principles when writing AGENTS.md:
 - Use real commands from the project. Placeholders get ignored; real commands get run.
@@ -104,45 +74,7 @@ Key principles when writing AGENTS.md:
 
 ### Step 5: Create Policy Docs
 
-For each relevant domain, create a `docs/<topic>.md` (or wherever you determined in Step 2). Structure each file:
-
-```markdown
-# [Domain Title]
-
-## Purpose
-Use this guide when [specific trigger — what task context makes this file relevant].
-
-## Policy
-[Bullet-point rules the agent should follow — make them actionable and project-specific]
-
-## Implementation notes
-[Project-specific conventions, gotchas, known patterns — things not obvious from reading the code]
-
-## Related docs
-- [Link to other doc files that intersect with this one]
-```
-
-Common domains to consider (create only what's relevant to this project):
-
-| Domain | File | When relevant |
-|--------|------|---------------|
-| Error handling | `error-handling.md` | Any backend or service project |
-| Security | `security.md` | Auth, user data, APIs, financial data |
-| Database | `database.md` | Projects with schema or query concerns |
-| Logging | `logging.md` | Backend services with observability needs |
-| Testing | `testing.md` | Projects with meaningful test conventions |
-| Deployment / CI | `deployment.md` | Projects with non-trivial deploy or branch rules |
-| API conventions | `api.md` | REST/GraphQL APIs with versioning or auth patterns |
-| Integration-specific | `sentry.md`, `hubspot.md`, etc. | Discovered during survey |
-
-For large domains (more than ~150 lines of real content), use a folder:
-```
-docs/sentry/
-  index.md          # summary + when to use the skill
-  cli.md            # tool usage
-  issue-triage.md   # step-by-step diagnosis
-```
-Point AGENTS.md only to the `index.md`.
+For each relevant domain, create a `docs/<topic>.md` (or wherever you determined in Step 2). Read `references/policy-docs.md` when choosing which domains to cover and writing each file; it holds the per-file template, the catalog of common domains with when each is relevant, and the folder layout for large domains.
 
 Don't create stubs with placeholder content. If you don't have real policy to write for a domain, leave a TODO comment in AGENTS.md instead: `# TODO: document error-handling conventions in docs/error-handling.md`
 

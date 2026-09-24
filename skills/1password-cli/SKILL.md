@@ -1,6 +1,6 @@
 ---
 name: 1password-cli
-description: 1Password CLI reference focused on op inject for securely populating config files, env files, and scripts from vault secrets.
+description: "1Password CLI (op) reference focused on op inject for securely populating config files, env files, and scripts from vault secrets. Use when the user wants to set up or populate a .env file from 1Password, hydrate a config template with real credentials, references secrets with op:// URIs, runs or asks about op inject, op run, or op read, or needs 1Password Service Accounts or Connect servers in CI/CD, even if they only say 'pull the secrets from 1Password' or 'stop hardcoding this password'. Not for other secret managers such as HashiCorp Vault, AWS Secrets Manager, or Doppler."
 ---
 
 # 1Password CLI
@@ -9,14 +9,7 @@ A skill for working with the 1Password CLI (`op`) to manage secrets securely —
 
 ## When to use
 
-Activate this skill when the user asks to:
-
-- Set up or populate `.env` files from 1Password vault secrets
-- Use `op inject` to hydrate config templates with real credentials
-- Reference secrets using `op://` URIs
-- Run commands with secrets injected at runtime (`op run`)
-- Read individual secrets from a vault (`op read`)
-- Work with 1Password Service Accounts or Connect servers in CI/CD
+Any task that reads secrets out of a 1Password vault from the terminal, a script, or CI. Other secret managers (HashiCorp Vault, AWS Secrets Manager, Doppler) have their own CLIs and are out of scope.
 
 ## Security principles
 
@@ -129,31 +122,9 @@ op read "op://Private/Herd Local Env/Variables/db_password"
 
 ---
 
-## Authentication Methods
+## Installation and authentication
 
-`op inject` (and all `op` commands) authenticate via one of these methods:
-
-| Method | When to use | Setup |
-|--------|-------------|-------|
-| **Biometric unlock** | Local development | Enable 1Password desktop app integration |
-| **Service Account** | CI/CD pipelines | Set `OP_SERVICE_ACCOUNT_TOKEN` env var |
-| **Connect server** | Self-hosted infrastructure | Set `OP_CONNECT_HOST` + `OP_CONNECT_TOKEN` |
-
-For local dev, biometric unlock through the desktop app is the smoothest experience — no tokens to manage, just authenticate with Touch ID / fingerprint when prompted.
-
----
-
-## Installation
-
-```bash
-# macOS
-brew install 1password-cli
-
-# Verify
-op --version
-```
-
-Enable the desktop app integration for biometric unlock: open the 1Password desktop app → Settings → Developer → enable "Integrate with 1Password CLI".
+Read `references/setup.md` when `op` is not installed, or a command fails with an authentication or session error; it covers the Homebrew install, desktop-app biometric unlock, Service Account tokens for CI/CD, and Connect servers.
 
 ---
 

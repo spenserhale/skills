@@ -1,6 +1,6 @@
 ---
 name: wp-vip-cli
-description: VIP-CLI reference for managing WordPress VIP local development environments and running commands against remote VIP Platform environments.
+description: "VIP-CLI (vip) reference for managing WordPress VIP local development environments and running commands against remote VIP Platform environments. Use when the user mentions WordPress VIP, vip dev-env, vip wp, or an @app.environment target, wants to create, start, stop, or destroy a local VIP environment, run WP-CLI inside one (vip dev-env exec) or against a hosted VIP environment, sync a VIP database to local, open a shell into the container, or set its env vars, even if they just say 'run wp on the VIP site'. For WP-CLI on a site that is not on VIP, use the wordpress-cli skill instead."
 ---
 
 # WordPress VIP CLI
@@ -9,14 +9,7 @@ A skill for working with the VIP-CLI toolchain — managing local development en
 
 ## When to use
 
-Activate this skill when the user asks to:
-
-- Create, start, stop, or manage a VIP local development environment
-- Run WP-CLI commands inside a VIP local environment (`vip dev-env exec`)
-- Run WP-CLI against a remote VIP Platform environment (`vip wp`)
-- Sync a database from a VIP Platform environment to local
-- Open a shell into a VIP local container
-- Manage environment variables for a VIP local environment
+Any WordPress site hosted on WordPress VIP, locally (`vip dev-env`) or remotely (`vip @app.env`). For a WordPress site that is not on VIP, or for the `wp` subcommands themselves, use the wordpress-cli skill; this skill only wraps them.
 
 ## Installation
 
@@ -60,63 +53,9 @@ vip dev-env exec --slug=my-site -- wp help search-replace
 
 ---
 
-## Local Environment Lifecycle
+## Managing local environments
 
-### Core commands
-
-| Command | Description |
-|---------|-------------|
-| `vip dev-env create` | Create a new local environment |
-| `vip dev-env start` | Start a local environment |
-| `vip dev-env stop` | Stop a local environment |
-| `vip dev-env destroy` | Remove a local environment |
-| `vip dev-env list` | List all local environments |
-| `vip dev-env update` | Update settings of a local environment |
-
-### Creating and starting
-
-```bash
-vip dev-env create --slug=my-site --title="My Local Site"
-vip dev-env start --slug=my-site
-vip dev-env start --slug=my-site --editor=vscode
-```
-
-### Stopping and removing
-
-```bash
-vip dev-env stop --slug=my-site
-vip dev-env destroy --slug=my-site
-```
-
----
-
-## Shell Access
-
-Open an SSH shell directly into the PHP container:
-
-```bash
-vip dev-env shell --slug=my-site --service=php
-```
-
----
-
-## Database Sync
-
-Pull a database from a remote VIP Platform environment into your local environment:
-
-```bash
-vip dev-env sync sql --slug=my-site @my-app.production
-```
-
----
-
-## Environment Variables
-
-Manage environment variables for a local environment:
-
-```bash
-vip dev-env envvar --slug=my-site
-```
+Read `references/dev-env.md` when creating, starting, stopping, or destroying a local environment, opening a shell into a container, pulling a database down from VIP Platform, or setting environment variables; the Quick Reference below has the one-liners.
 
 ---
 
@@ -155,3 +94,6 @@ Available on all `vip dev-env` commands:
 | Open a shell in the local container | `vip dev-env shell --slug=my-site --service=php` |
 | Pull the production database locally | `vip dev-env sync sql --slug=my-site @my-app.production` |
 | List all local environments | `vip dev-env list` |
+| Create a local environment | `vip dev-env create --slug=my-site --title="My Local Site"` |
+| Start or stop a local environment | `vip dev-env start --slug=my-site` / `vip dev-env stop --slug=my-site` |
+| Remove a local environment | `vip dev-env destroy --slug=my-site` |

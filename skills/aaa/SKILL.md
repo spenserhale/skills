@@ -24,12 +24,7 @@ If **Assert** fails, you don't patch blindly — you return to **Arrange** with 
 
 ## When to use
 
-- Smaller, well-scoped tasks that still deserve to be done correctly the first time.
-- Bug fixes, single tickets, adding/using a library, a focused change.
-- Non-coding tasks: retrieving information, gathering context, validating or transforming data.
-- Any time you'd otherwise "just do it" but want a quick guardrail that the work is set up right and actually worked.
-
-For large, multi-subsystem efforts that need a written spec and a task-by-task plan, use a heavier workflow instead. `/aaa` is deliberately light.
+Scoped to smaller one-shot tasks, coding or not, that you'd otherwise "just do" but want a quick guardrail around. For large, multi-subsystem efforts that need a written spec and a task-by-task plan, use a heavier workflow instead. `/aaa` is deliberately light.
 
 ## The three steps
 

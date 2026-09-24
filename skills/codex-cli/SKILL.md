@@ -1,19 +1,15 @@
 ---
 name: codex-cli
-description: Drive OpenAI's Codex CLI non-interactively as a delegated coding sub-agent — send it a prompt with `codex exec`, capture the final result from stdout (or JSON/schema/file), and control sandbox, approvals, model, and sessions so it never blocks on a prompt.
+description: "Drive OpenAI's Codex CLI non-interactively as a delegated coding sub-agent via `codex exec`, with sandbox, approvals, model, and session control so it never blocks on a prompt. Use when the user asks to delegate work to Codex, \"ask Codex\", run `codex exec`, use another agent as a sub-agent, get a second opinion from a different model, or script Codex in CI. For the OpenCode agent (`opencode run`), use the opencode-cli skill instead."
 ---
 
 # Codex CLI (headless / sub-agent use)
 
 Teaches Claude how to hand a task to OpenAI's **Codex CLI** programmatically and get the result back — like spawning another coding agent. The key is `codex exec`, the non-interactive mode: it runs a single session to completion, streams progress to **stderr**, prints the **final agent message to stdout**, and exits. That makes it safe to capture with `$(...)`, pipe into `jq`/`grep`, or redirect to a file.
 
-## When to use
+## Scope
 
-- The user asks to run Codex, "ask Codex", get a second opinion from another model/agent, or delegate a chunk of work to it.
-- You want a parallel/independent agent to attempt a task while you do something else.
-- Automating Codex inside a script, CI job, or larger workflow.
-
-Do **not** launch the interactive TUI (`codex` with no subcommand) — it blocks. Always use `codex exec`.
+Do **not** launch the interactive TUI (`codex` with no subcommand) — it blocks. Always use `codex exec`. For the OpenCode agent, use the opencode-cli skill.
 
 ## Start with help
 

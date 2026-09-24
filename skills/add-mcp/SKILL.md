@@ -1,20 +1,15 @@
 ---
 name: add-mcp
-description: Install MCP servers across coding agents (Claude Code, Cursor, VS Code, Codex, Gemini CLI, Goose, OpenCode, Zed, Claude Desktop) with one `npx add-mcp` command instead of editing per-tool config files.
+description: "Install MCP servers across coding agents (Claude Code, Cursor, VS Code, Codex, Gemini CLI, Goose, OpenCode, Zed, Claude Desktop) with one npx add-mcp command instead of editing per-tool config files. Use when the user asks to install, add, or register an MCP server, connect Claude Code, Cursor, or Codex to a server, edit an MCP config such as .mcp.json or claude_desktop_config.json, or wants install instructions for their own server's docs. For building a server rather than installing one, use the mcp-creator skill."
 ---
 
 # add-mcp
 
 A single command that installs an MCP server into every coding agent on your machine — auto-detects which agents are configured and writes the right config for each one.
 
-## When to use
+## Scope and hand-offs
 
-Activate this skill when the user asks to:
-
-- Install or add an MCP server to Claude Code, Cursor, VS Code, Codex, Gemini CLI, Goose, OpenCode, Zed, or Claude Desktop
-- Set up the same MCP server across multiple agents at once
-- Avoid hand-editing per-tool MCP config files (e.g. `.mcp.json`, `mcp.json`, `claude_desktop_config.json`)
-- Distribute MCP install instructions in their own docs/README
+`add-mcp` handles remote URLs and npm packages only; PHP and local-binary servers go through `claude mcp add` (see below). For building a server rather than installing one, use the `mcp-creator` skill.
 
 ## Core command
 

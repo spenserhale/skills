@@ -1,19 +1,15 @@
 ---
 name: opencode-cli
-description: Drive the OpenCode terminal coding agent non-interactively as a delegated sub-agent — send it a prompt with `opencode run`, capture the result from stdout (text or `--format json`), pipe context in via stdin, and control model, agent, sessions, and auto-approval so it never blocks on a prompt.
+description: "Drive the OpenCode terminal coding agent non-interactively as a delegated sub-agent via `opencode run`, with model, agent, session, and auto-approval control so it never blocks on a prompt. Use when the user asks to delegate work to OpenCode, \"ask OpenCode\", run `opencode run`, use another agent as a sub-agent, get a second opinion from a different model or provider, or script OpenCode in CI. For OpenAI's Codex CLI (`codex exec`), use the codex-cli skill instead."
 ---
 
 # OpenCode CLI (headless / sub-agent use)
 
 Teaches Claude how to hand a task to **OpenCode** (the open-source terminal AI coding agent) programmatically and get the result back — like spawning another coding agent. The key is `opencode run`, which drives the agent without the TUI, prints the result to stdout, and exits. It's the building block for scripting, CI, and shell pipelines.
 
-## When to use
+## Scope
 
-- The user asks to run OpenCode, "ask OpenCode", get a second opinion from another agent/model, or delegate work to it.
-- You want an independent agent (possibly on a different model/provider) to attempt a task.
-- Automating OpenCode inside a script or larger workflow.
-
-Do **not** launch the bare `opencode` TUI — it's interactive and blocks. Use `opencode run`.
+Do **not** launch the bare `opencode` TUI — it's interactive and blocks. Use `opencode run`. For OpenAI's Codex CLI, use the codex-cli skill.
 
 ## Start with help
 

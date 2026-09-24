@@ -1,6 +1,6 @@
 ---
 name: mcp-creator
-description: Build Model Context Protocol (MCP) servers — the overview skill covering architecture, lifecycle, transports, resources, prompts, authorization, and client features (sampling/roots/elicitation), backed by the official specification and an opinionated best-practices guide. Use this skill whenever the user wants to create, build, scaffold, design, plan, or debug an MCP server, add resources/prompts/transports/auth to one, asks "how do I build an MCP server," mentions @modelcontextprotocol/sdk or FastMCP, or is implementing the MCP protocol — even if they don't say "MCP" but describe exposing tools/data/prompts to an LLM host like Claude. For designing the server's TOOLS specifically, hand off to the mcp-tools-creator skill.
+description: "Build Model Context Protocol (MCP) servers: architecture, lifecycle, transports, resources, prompts, authorization, and client features (sampling, roots, elicitation). Use whenever the user wants to create, scaffold, design, or debug an MCP server, add a feature to one, mentions @modelcontextprotocol/sdk or FastMCP, or describes exposing tools, data, or prompts to an LLM host like Claude even if they don't say MCP. For designing the server's tools specifically, hand off to the mcp-tools-creator skill."
 ---
 
 # MCP Creator
@@ -9,18 +9,9 @@ Build a Model Context Protocol server that an LLM host (Claude Desktop, Claude C
 
 The single most important framing: **MCP is a stateful, capability-negotiated JSON-RPC protocol.** A server doesn't "have" features — it *declares* them at startup, and the host uses only what was declared. Everything below hangs off that.
 
-## When to use
+## Scope and hand-offs
 
-Activate this skill when the user is:
-
-- Creating, scaffolding, or planning a new MCP server (any language; examples here are TypeScript)
-- Adding or changing a server feature — **resources**, **prompts**, **transports**, **authorization**, or **client features** (sampling/roots/elicitation)
-- Choosing a transport (stdio vs Streamable HTTP) or adding auth to a remote server
-- Debugging handshake/capability/lifecycle issues, or "my host won't see my server"
-- Asking what MCP is, how the pieces fit, or which spec revision to target
-- Describing the *goal* of MCP without naming it — "let Claude read my database," "expose my API to an agent host," "give the model access to my files"
-
-**Hand off for tools.** If the work centers on *designing the tools the model will call* — naming them, writing their schemas, deciding what to expose, shaping their return values — use the **`mcp-tools-creator`** skill instead. Tools are the largest, most design-sensitive surface, so they get their own skill. This skill keeps a one-paragraph tools stub for completeness and points there.
+Any language is in scope; examples here are TypeScript. If the work centers on *designing the tools the model will call* (naming, schemas, what to expose, return shapes), use the **`mcp-tools-creator`** skill; tools are the largest, most design-sensitive surface, so this skill keeps only a one-paragraph stub and points there.
 
 **Not this skill:** *installing/registering* an existing MCP server into a client is the `add-mcp` skill. *Designing a CLI* (even one an agent drives) is `agent-native-cli-creator`.
 
