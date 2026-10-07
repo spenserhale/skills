@@ -15,4 +15,13 @@ Clone absent repositories; validate existing repositories and refresh their defa
 
 ## Verification
 
-Validate frontmatter and house rules; run three fresh-agent reference scenarios with and without the skill. Check install discovery and verify the published commit on GitHub.
+Validate frontmatter and house rules; run fresh-agent reference scenarios with and without the skill. Check install discovery and verify the published commit on GitHub.
+
+## Verification results
+
+- Strict skill validator: zero errors, warnings, or informational findings.
+- Fresh-agent baseline used different cache paths; with-skill plans followed the requested cache roots, refresh policy, preservation rules, and three reference scenarios. Four trigger boundary cases matched the intended scope.
+- Review identified case-sensitive identity, stale moved/deleted tags, and narrowed fetch refspecs. Revisions lowercase GitHub identity, explicitly fetch all remote heads, and fetch requested tags into unique task-owned refs. A fourth eval covers these cases.
+- Independent quality reviewer reproduced branch and tag freshness using local Git repositories and approved the revised instructions.
+- Authoring-session Unix smoke test executed the published Bash example in a temporary cache against octocat/hello-world: initial clone and existing-checkout refresh succeeded; dirty-cache inspection failed while preserving the untracked note; all three runs released their locks.
+- Windows behavior was evaluated as instruction-following plans; no native Windows execution was available. Statistical triggering benchmarks and browser review were omitted for this focused instruction-only change.

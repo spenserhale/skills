@@ -25,6 +25,7 @@ Install once to your user profile; available in every project.
 | Skill | Description |
 |-------|-------------|
 | [aaa](skills/aaa/SKILL.md) | Arrange · Act · Assert (`/aaa`) — a lightweight three-step loop for one-shot tasks (coding or not): gather context + plan, do the work inline, then prove it worked (tests, dry run, browser, data check). Loops back to Arrange with the failure as new context when validation fails |
+| [github-ref](skills/github-ref/SKILL.md) | Inspect external GitHub source, docs, and examples in a shared per-user cache, refreshed and locked through reads, with detached worktrees for explicit refs |
 | [repo-explorer](skills/repo-explorer/SKILL.md) | Clone and inspect external repositories in a reusable `~/.explore/repos` cache without cluttering the workspace — plus symlinking a project's gitignored `refs/example-repo` into the cache as `source` |
 | [doc-it](skills/doc-it/SKILL.md) | Document the current work using this project's established process (markdown, Confluence, Notion, changelog, etc.) — asks once to set it up if no process is defined yet |
 | [Spenser's Skills](skills/spensers-skills/SKILL.md) | Find and install skills from this repo — searches the index and runs `npx skills add spenserhale/skills@<skill>` |
@@ -44,6 +45,7 @@ Install once to your user profile; available in every project.
 ```sh
 npx skills add spenserhale/skills --global --agent '*' -y \
   --skill aaa \
+  --skill github-ref \
   --skill repo-explorer \
   --skill doc-it \
   --skill spensers-skills \

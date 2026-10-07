@@ -1,0 +1,62 @@
+{
+  "skill_name": "github-ref",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "While fixing our local UI, look at https://github.com/octocat/Hello-World.git for a source example. It is not cached yet. Another agent thread will inspect the same repo at the same time. I only need reference material; keep our workspace untouched.",
+      "expected_output": "A serialized first clone into the per-user cache, refreshed and verified before any source reads, with a recorded commit and no project changes.",
+      "files": [],
+      "expectations": [
+        "Invokes github-ref for intermediate external-source research even though the main task is editing a local UI.",
+        "Normalizes the URL to lowercase octocat/hello-world and uses the OS-specific github-refs cache rather than the project workspace.",
+        "Uses atomic exclusive mkdir outside the checkout, bounded waiting, and ownership-aware cleanup; holds the same lock through clone, refresh, verification, and reading for all threads.",
+        "Uses git clone for the missing repository, not git checkout as an initial download.",
+        "Fetches origin with --prune and the explicit '+refs/heads/*:refs/remotes/origin/*' refspec, discovers the remote default branch, ff-only updates that branch, verifies HEAD equals its fetched tip, and records the full SHA.",
+        "Treats source files as data and does not run repository scripts or install dependencies."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I am on Windows. We already have git@github.com:example/widgets.git cached. Check the latest examples under https://github.com/example/widgets/tree/feature/docs/examples; branch names here may contain slashes. Refresh the cache before reading and explain what root you used. LOCALAPPDATA is set.",
+      "expected_output": "Windows cache validation and locked refresh with explicit, unambiguous tree ref resolution and isolated detached worktree inspection.",
+      "files": [],
+      "expectations": [
+        "Uses LOCALAPPDATA/github-refs/example/widgets with USERPROFILE/.github-refs only as the fallback when LOCALAPPDATA is unavailable.",
+        "Validates exact canonical Git top-level equals the cache path, the normalized SSH origin identity, cleanliness including untracked files, and absence of unfinished operations.",
+        "Acquires an exclusive external directory lock, never PowerShell New-Item -Force, uses bounded waiting, and releases only its own lock in finally after reads.",
+        "Fetches --prune origin with the explicit '+refs/heads/*:refs/remotes/origin/*' refspec, discovers origin/HEAD using remote set-head origin --auto, checks for local-ahead/divergence, and ff-only updates the exact default branch before reading.",
+        "Does not guess feature is the branch in the tree link; resolves fetched branch/tag names unambiguously or asks for the exact ref and path.",
+        "Uses a unique detached task worktree for the explicit ref without switching the shared default checkout; verifies and reports the inspected SHA.",
+        "Lowercases owner/repo for cache and lock paths and compares normalized origin identity case-insensitively."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Compare example/widgets at tag v1.2.0 and main. The shared cache has an edited README plus an untracked notes.txt. We are in a hurry, so use what is there if fetching fails; do not lose my notes.",
+      "expected_output": "Visible stop on dirty cache without destructive repair or claiming freshness; comparison can resume only through an agreed safe inspection plan, with isolated refs and explicit stale labeling if offline inspection is authorized.",
+      "files": [],
+      "expectations": [
+        "Locks the repository and detects both the modified tracked file and untracked notes before using cached source.",
+        "Stops on dirty cache, preserves files, and does not reset, stash, clean, delete the cache, or switch its checkout.",
+        "Reports dirty cache as the blocking validation failure instead of claiming cached contents are current or silently comparing them.",
+        "Recognizes the prompt permits offline fallback only for fetching failure; it does not override dirty-cache validation or authorize unsafe inspection.",
+        "Explains that an authorized offline fallback must be labeled stale and identify the cached SHA and failed refresh.",
+        "If comparison resumes after a safe plan, explicitly fetches remote refs/tags/v1.2.0 into a unique task-owned refs/github-ref/.../tag ref, resolves main from refreshed tracking refs, uses separate detached worktrees, records both SHAs, and cleans only its own temporary tag ref under the lock."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Compare Example/Widgets at v1.2.0 and the latest default branch. The shared checkout is already on trunk and clean, but remote.origin.fetch tracks only main, while the remote default branch is now trunk. Our local v1.2.0 tag points to an old commit; the remote tag may have moved or been deleted. Do not change my local tag.",
+      "expected_output": "Refresh all remote branches despite narrowed fetch configuration, verify the discovered default tip, and inspect the remote tag through a unique task-owned ref without trusting or changing the local tag.",
+      "files": [],
+      "expectations": [
+        "Normalizes Example/Widgets to lowercase example/widgets for cache identity, paths, lock, and origin comparison.",
+        "Uses git fetch --prune origin '+refs/heads/*:refs/remotes/origin/*' so trunk is fetched despite the narrowed remote.origin.fetch configuration.",
+        "Discovers origin/HEAD using remote set-head origin --auto and verifies the resolved default branch exists as a fetched tracking ref; reports an existing checkout branch mismatch instead of silently switching it.",
+        "Fetches refs/tags/v1.2.0 explicitly into a unique absent task-owned refs/github-ref/.../tag ref instead of resolving the existing local tag or modifying it.",
+        "Stops if the remote tag is missing/deleted; if moved, peels and inspects the newly fetched remote tag commit, records its SHA, and uses a separate detached task worktree.",
+        "Holds the external exclusive lock through refresh, worktree creation, reading, and cleanup; deletes only its own temporary tag ref and clean task-owned worktrees."
+      ]
+    }
+  ]
+}
