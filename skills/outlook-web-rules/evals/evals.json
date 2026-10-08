@@ -1,0 +1,43 @@
+{
+  "skill_name": "outlook-web-rules",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Using my signed-in browser extension, inspect the three Cloudflare rules in Outlook web. There are 49 rules. Tell me their conditions and whether any are duplicates. Do not change rules.",
+      "expected_output": "A compact comparison based on expanded configurations, with name-only search limits acknowledged and no saved mutations.",
+      "files": [],
+      "expectations": [
+        "Uses observed menuitem rows rather than guessed DOM listitems",
+        "Scopes repeated Expand rule controls to an identified row",
+        "Reads sibling summaries without an ambiguous outer tabpanel locator",
+        "Does not claim search by name searches condition values",
+        "Does not save, toggle, reorder, delete, or run any rule"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create an Outlook web rule to delete future mail from alerts@example.com whose subject contains Weekly digest. Use my signed-in browser extension.",
+      "expected_output": "An authorized ordinary Delete rule with committed exact sender and subject chips in two AND rows, verified after save without processing existing mail.",
+      "files": [],
+      "expectations": [
+        "Checks likely existing rules before creation",
+        "Chooses From and Subject includes in separate condition rows",
+        "Commits sender and full subject phrase with Enter and verifies chips",
+        "Chooses exact Delete option, not Permanent delete",
+        "Leaves Run rule now unchecked and verifies saved configuration"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Two Outlook rules have the same name. Edit the one from alerts@example.com with subject Weekly digest to use Monthly digest. Keep its exception, enabled state, order, and stop-processing setting. Do not run it now.",
+      "expected_output": "The matching configuration is disambiguated; old subject chip is replaced, not appended, and unrelated settings and the other rule are preserved.",
+      "files": [],
+      "expectations": [
+        "Disambiguates same-name rules using current position and configuration",
+        "Removes the old subject chip before committing Monthly digest",
+        "Preserves exception, enabled state, order, and stop-processing",
+        "Leaves Run rule now off and verifies the edited rule"
+      ]
+    }
+  ]
+}

@@ -38,6 +38,7 @@ Install once to your user profile; available in every project.
 | [mcp-creator](skills/mcp-creator/SKILL.md) | Build MCP servers — overview + router into the official spec (architecture, transports, resources, prompts, auth, client features) with an opinionated best-practices guide; hands off tools to `mcp-tools-creator` |
 | [mcp-tools-creator](skills/mcp-tools-creator/SKILL.md) | Design MCP tools agents use reliably — `domain_verb_noun` naming, intent over CRUD, strong schemas, contextful returns, error/annotation patterns; spec + opinionated best-practices |
 | [sh-skill-creator](skills/sh-skill-creator/SKILL.md) | Create, restructure, review, or audit agent skills against a 2026 rule set — trigger-first descriptions, lean bodies, one-level references, evals with a baseline, security audit — with a scaffolder and a spec + house-rules validator |
+| [outlook-web-rules](skills/outlook-web-rules/SKILL.md) | Read, audit, create, and edit Outlook web rules through a signed-in browser; focused observations, exact sender + subject filters, duplicate checks, and verified edits |
 | [video-pitch](skills/video-pitch/SKILL.md) | Produce a ~20-second video pitch of a feature, tool, PR, or app for customer success, sales, or stakeholders — narration over a real screen-recorded demo, frame-exact HTML motion scenes, captions, poster, share blurb; local tools only (ffmpeg, Chrome, playwright-core, any TTS) |
 
 **Install / update all user skills** (installs any you're missing and updates the rest to latest, across every detected agent):
@@ -58,6 +59,7 @@ npx skills add spenserhale/skills --global --agent '*' -y \
   --skill mcp-creator \
   --skill mcp-tools-creator \
   --skill sh-skill-creator \
+  --skill outlook-web-rules \
   --skill video-pitch
 ```
 
