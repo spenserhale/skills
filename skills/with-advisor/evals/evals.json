@@ -1,0 +1,48 @@
+{
+  "skill_name": "with-advisor",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/with-advisor add multi-tenant support to our billing service. right now there's one invoices table and one customers table with no tenant column, about 40 endpoints under src/routes. tenants must never see each other's data. take it all the way through, I'll check back tonight. You're Sonnet in Claude Code.",
+      "expected_output": "Sonnet runs the thread, explores first, then gets a plan review from Opus on the costly-to-undo isolation design before writing code, and does the implementation itself.",
+      "files": [],
+      "expectations": [
+        "States a one-line roster naming the executor model and the advisor model",
+        "Explores the codebase itself before the first consult instead of opening with a consult by reflex",
+        "Consults the advisor on the tenant-isolation design (schema, row-level security versus application filtering, migration) before implementing it",
+        "The advisor call sets an explicit stronger same-family model (Opus), not the session default",
+        "The consult message contains goal, current state with paths, constraints, the single decision it needs from the advisor, and a requested answer shape",
+        "The advisor is asked to advise only, not to edit files",
+        "The executor does the implementation itself after the consult rather than delegating the build to the advisor",
+        "Tells the user in a line what the consult changed or confirmed"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/with-advisor bump the eslint config to flat config format (eslint.config.js) and fix whatever lint errors fall out. small repo, 30ish files. You are running as GLM-flash in OpenCode.",
+      "expected_output": "A routine task: the executor names GLM as the advisor on call but completes the work with zero consults, because docs and lint output answer every question.",
+      "files": [],
+      "expectations": [
+        "Names GLM (the flagship sibling) as the advisor, not a model from another provider",
+        "Attempts the migration itself first: no advisor consult happens before its own first attempt at the work",
+        "Any consult that does happen follows a stated concrete trigger (two failed attempts at the same problem, or evidence it cannot explain), and uses a GLM model id taken from the live model list",
+        "Does not consult for reassurance or a final sign-off on this small, easily reversible change"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/with-advisor still on the websocket reconnect bug. you've now tried twice: first added exponential backoff in src/ws/client.ts (clients still pile up after a server restart), then added jitter (same thing, plus now the test `reconnect.spec.ts > resumes session` fails with `Error: session token rejected (401)` on the second connect). Use Sol as the advisor on this, not Opus. You're Sonnet in Claude Code.",
+      "expected_output": "Two failed attempts is the trigger: the executor stops retrying and consults, using GPT Sol through the Codex CLI or cross-provider delegation because the user named it, sending evidence rather than a theory, and tests the advice before building on it.",
+      "files": [],
+      "expectations": [
+        "Consults the advisor now instead of making a third solo attempt",
+        "Uses GPT Sol as the advisor because the user named it, reached through a headless CLI call with an explicit model flag or an orchestrator's cross-provider delegation",
+        "Passes an exact Sol model id resolved from a model list or config, not the bare nickname `sol`",
+        "The consult includes both attempts and their exact results, with the 401 error text verbatim",
+        "Asks for a diagnosis from the evidence (for example ranked hypotheses each with a test) rather than asking the advisor to confirm the executor's own theory",
+        "Keeps the advisor read-only and applies any fix itself",
+        "Treats the advice as a hypothesis and plans a concrete check before building on it"
+      ]
+    }
+  ]
+}

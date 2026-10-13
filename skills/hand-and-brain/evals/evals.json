@@ -1,0 +1,47 @@
+{
+  "skill_name": "hand-and-brain",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/hand-and-brain we're moving the whole api package off moment.js onto date-fns. there are like 60 files that import moment across src/api and src/jobs, plus the tests. I don't want you burning your whole context on this. You're running as Opus in Claude Code.",
+      "expected_output": "Opus stays the orchestrator: announces the roster, has a cheap hand inventory the usages, decides the migration rules itself, fans mechanical edits out to cheaper same-family hands on disjoint files, and verifies before reporting.",
+      "files": [],
+      "expectations": [
+        "States a one-line roster naming the brain model and the hand model(s) before starting work",
+        "Delegates the usage inventory or search to a subagent rather than reading the ~60 files inline",
+        "Every subagent call sets an explicit model that is a lower tier in the same family (Sonnet or Haiku), not the session default",
+        "Uses the fast tier (Haiku) for search or inventory and the capable tier (Sonnet) for the code edits, or justifies a different split",
+        "The brain itself decides the moment-to-date-fns mapping rules and puts them in the briefs, instead of telling hands to work out the approach",
+        "Parallel editing hands are given disjoint sets of files",
+        "Each brief states what done looks like (or the exact question to answer) and a return shape with a length cap and no file dumps",
+        "Verifies the hands' work itself (runs tests or reads diffs) before telling the user it is done, and distinguishes verified results from hand claims"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/hand-and-brain rename the env var STRIPE_KEY to STRIPE_SECRET_KEY. it's read in exactly one place, config/payments.ts line 14, and set in .env.example. that's it, I already grepped.",
+      "expected_output": "The brain recognizes that briefing a hand costs more than two known-target edits and does the work inline, while keeping the mode on for later work. Guard eval: a capable model passes this without the skill too; it exists to catch the skill causing over-delegation.",
+      "files": [],
+      "expectations": [
+        "Makes the two edits inline without spawning a subagent for them",
+        "Gives the reason in terms of delegation overhead versus a known-target edit",
+        "Does not spawn a subagent to re-run the grep the user already did, or states that any check it does is a single cheap inline command",
+        "Does not abandon the mode: indicates hands will be used when later work warrants it"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/hand-and-brain the checkout e2e suite is flaky, fails maybe 1 in 5 on CI. figure out why and fix it. use Luna as the hands for this one, I have spare OpenAI quota. Repo rule: never commit, I review everything first. (You are Opus in Claude Code.)",
+      "expected_output": "Cross-harness hands because the user named them: Luna is reached through the Codex CLI or cross-provider delegation, the brain keeps diagnosis and synthesis, and the no-commit rule travels in every brief.",
+      "files": [],
+      "expectations": [
+        "Uses the GPT Luna model as the hand because the user named it, rather than defaulting to Sonnet or Haiku",
+        "Reaches Luna through a headless CLI call with an explicit model flag or through an orchestrator's cross-provider delegation, using an exact model id resolved from a model list or config rather than the bare nickname",
+        "Restates the never-commit rule inside the brief(s) sent to the hands",
+        "Sends hands to gather evidence (run the suite repeatedly, collect failing logs) and keeps the root-cause decision with the brain, rather than briefing a hand to 'find and fix the flakiness'",
+        "Briefs for evidence-gathering hands ask open questions and do not present the brain's suspected cause as something to confirm",
+        "Does not let a hand push, commit, or take other outward-facing actions"
+      ]
+    }
+  ]
+}

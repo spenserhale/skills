@@ -33,6 +33,8 @@ Install once to your user profile; available in every project.
 | [add-mcp](skills/add-mcp/SKILL.md) | One-command MCP server install across Claude Code, Cursor, VS Code, Codex, Gemini CLI, Goose, OpenCode, Zed, Claude Desktop |
 | [Codex CLI](skills/codex-cli/SKILL.md) | Drive OpenAI's Codex CLI as a delegated sub-agent — `codex exec` non-interactively, capture the result from stdout/JSON/schema, and control sandbox, approvals, model, and sessions |
 | [OpenCode CLI](skills/opencode-cli/SKILL.md) | Drive the OpenCode terminal agent as a delegated sub-agent — `opencode run` non-interactively, pipe context via stdin, capture stdout/JSON, and control model, agent, `--auto`, and sessions |
+| [hand-and-brain](skills/hand-and-brain/SKILL.md) | "Be the brain" or `/hand-and-brain` — a top-tier model stays the brain (decisions, briefs, review) and routes reading, search, and mechanical work to cheaper same-family subagents (Opus → Sonnet/Haiku, Sol → Terra/Luna, GLM → GLM-flash) to save context and tokens; cross-harness hands only when you name them |
+| [with-advisor](skills/with-advisor/SKILL.md) | "Use X as an advisor" or `/with-advisor` — a mid-tier model runs the long thread and consults a stronger same-family model (Sonnet → Opus, Terra → Sol, GLM-flash → GLM) as a read-only advisor for plan review, hard decisions, and getting unstuck; cross-harness advisors only when you name them |
 | [1Password CLI](skills/1password-cli/SKILL.md) | `op inject` for securely populating config and `.env` files from vault secrets |
 | [agent-native-cli-creator](skills/agent-native-cli-creator/SKILL.md) | Best practices for designing CLIs that AI agents can drive reliably — non-interactive flags, structured output (TOON / JSON / CSV), enumerated errors, idempotent mutations, profiles, `--wait`, three-layer introspection |
 | [mcp-creator](skills/mcp-creator/SKILL.md) | Build MCP servers — overview + router into the official spec (architecture, transports, resources, prompts, auth, client features) with an opinionated best-practices guide; hands off tools to `mcp-tools-creator` |
@@ -54,6 +56,8 @@ npx skills add spenserhale/skills --global --agent '*' -y \
   --skill add-mcp \
   --skill codex-cli \
   --skill opencode-cli \
+  --skill hand-and-brain \
+  --skill with-advisor \
   --skill 1password-cli \
   --skill agent-native-cli-creator \
   --skill mcp-creator \
