@@ -29,6 +29,7 @@ Install once to your user profile; available in every project.
 | [repo-explorer](skills/repo-explorer/SKILL.md) | Clone and inspect external repositories in a reusable `~/.explore/repos` cache without cluttering the workspace — plus symlinking a project's gitignored `refs/example-repo` into the cache as `source` |
 | [doc-it](skills/doc-it/SKILL.md) | Document the current work using this project's established process (markdown, Confluence, Notion, changelog, etc.) — asks once to set it up if no process is defined yet |
 | [reflect](skills/reflect/SKILL.md) | Sprint retro for a thread (`/reflect`) — what worked, what didn't, which docs or skills were stale, and which lookups burned tokens a CLI or API would have saved; routes each finding to the smallest durable fix and waits for approval. Ships a transcript reader that measures tool-result cost in Claude Code |
+| [kaizen](skills/kaizen/SKILL.md) | Quality-first working mode (`/kaizen on`) after the Toyota Production System — every failing test, warning, and deprecation notice gets noticed, then triaged: your own defects fixed first, small in-path ones fixed in passing, the rest reported at end of turn with evidence instead of fixed or ignored. `/kaizen audit [path]` measures a repo's dev process (checks, feedback time, CI gates, standing inventory) and recommends one improvement to do first |
 | [Spenser's Skills](skills/spensers-skills/SKILL.md) | Find and install skills from this repo — searches the index and runs `npx skills add spenserhale/skills@<skill>` |
 | [agents-init](skills/agents-init/SKILL.md) | Scaffold a project for all AI coding agents — creates `AGENTS.md` router, `docs/` policy files, `.agents/skills/` workflows, and a `CLAUDE.md` adapter |
 | [add-mcp](skills/add-mcp/SKILL.md) | One-command MCP server install across Claude Code, Cursor, VS Code, Codex, Gemini CLI, Goose, OpenCode, Zed, Claude Desktop |
@@ -53,6 +54,7 @@ npx skills add spenserhale/skills --global --agent '*' -y \
   --skill repo-explorer \
   --skill doc-it \
   --skill reflect \
+  --skill kaizen \
   --skill spensers-skills \
   --skill agents-init \
   --skill add-mcp \

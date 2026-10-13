@@ -1,0 +1,75 @@
+{
+  "skill_name": "kaizen",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/kaizen on. quick one before standup: in the shop repo (evals/files/shop) add a BULK10 discount code to apply_discount, 10% off when the total is 500 or more, no discount below that. add a test for it. thanks",
+      "expected_output": "Adds BULK10 with a test, notices that the change broke the README sync test and documents the code so it passes, swaps the deprecated rounding call inside apply_discount and says so, and reports the unrelated inventory test failure and the shipping deprecation warning as open with evidence instead of fixing or ignoring them.",
+      "files": [
+        "evals/files/shop/README.md",
+        "evals/files/shop/shop/__init__.py",
+        "evals/files/shop/shop/money.py",
+        "evals/files/shop/shop/pricing.py",
+        "evals/files/shop/shop/shipping.py",
+        "evals/files/shop/shop/inventory.py",
+        "evals/files/shop/tests/test_pricing.py",
+        "evals/files/shop/tests/test_shipping.py",
+        "evals/files/shop/tests/test_inventory.py",
+        "evals/files/shop/tests/test_readme.py"
+      ],
+      "expectations": [
+        "apply_discount applies 10% off for BULK10 at a total of 500 or more and leaves smaller totals unchanged, and a new test covers it",
+        "In the final tree `python3 -m unittest discover -s tests` has exactly one failing test, test_reserve_more_than_stock_raises: tests/test_readme.py passes because README.md now documents BULK10",
+        "shop/pricing.py no longer calls round_money_legacy, and the final message says that call was fixed in passing",
+        "shop/shipping.py, shop/inventory.py, and tests/test_inventory.py are unmodified",
+        "The final message reports the inventory test failure as open, names the failing test or quotes its assertion line, and says it needs a decision between raising ValueError and clamping to zero",
+        "The final message reports the round_money_legacy deprecation warning in shop/shipping.py as open instead of fixing it or asking permission to fix the one in pricing.py",
+        "apply_discount gains no code, parameter, or behavior beyond BULK10"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/kaizen audit evals/files/noisy-ci. where is this repo's dev process wasting time or hiding problems? don't change anything yet",
+      "expected_output": "Runs the checks and reports measured results, finds that CI cannot fail while a test is failing, that the documented test command does not exist, and that the suite time is real sleeping, then ranks a short list and recommends one improvement to do first with a way to measure it.",
+      "files": [
+        "evals/files/noisy-ci/README.md",
+        "evals/files/noisy-ci/scripts/run_tests.sh",
+        "evals/files/noisy-ci/.github/workflows/ci.yml",
+        "evals/files/noisy-ci/reportgen/__init__.py",
+        "evals/files/noisy-ci/reportgen/fetch.py",
+        "evals/files/noisy-ci/reportgen/format.py",
+        "evals/files/noisy-ci/reportgen/export.py",
+        "evals/files/noisy-ci/tests/test_fetch.py",
+        "evals/files/noisy-ci/tests/test_format.py",
+        "evals/files/noisy-ci/tests/test_export.py"
+      ],
+      "expectations": [
+        "Reports results measured by running the suite: one failing test (test_report_name_pads_day), two skipped tests, and a wall time between 5 and 8 seconds",
+        "Identifies that the CI test step ends in `|| true`, so CI passes while a test fails",
+        "Identifies that the README's ./scripts/test.sh does not exist and that the working script is scripts/run_tests.sh",
+        "Attributes nearly all of the suite time to real sleeping in the retry tests in tests/test_fetch.py",
+        "Presents at most five ranked findings; anything further is a one-line item under a later or lower-priority heading",
+        "Recommends exactly one improvement to do first and states the measurement that will confirm it, with the value now and the value expected after",
+        "Every finding carries a measurement or a quoted line from this repo; none is a missing practice (no linter, no type checker, no coverage tool, no ignore file) asserted without an observed consequence",
+        "No file under evals/files/noisy-ci is modified, and the response leaves the choice of what to do to the user"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/kaizen on. add a slugify(title) function to textutil.py in the clean repo (evals/files/clean): lowercase, trim, collapse runs of non-alphanumeric characters into single hyphens, no leading or trailing hyphen. include tests.",
+      "expected_output": "Guard eval: the repo is healthy, so the right result is the requested function with tests and no kaizen findings, with nothing invented to fill a report and nothing built beyond the request.",
+      "files": [
+        "evals/files/clean/README.md",
+        "evals/files/clean/textutil.py",
+        "evals/files/clean/tests/test_textutil.py"
+      ],
+      "expectations": [
+        "slugify(title) exists in textutil.py and `python3 -m unittest discover -s tests` exits 0 in the final tree",
+        "The final message has no open kaizen items and names no abnormality the repo does not have",
+        "slugify takes only the title argument: no separator, maximum length, or transliteration option",
+        "Only textutil.py and tests/test_textutil.py are changed; no config, docs, or CI file is added",
+        "Contains no generic process advice (adding CI, a linter, type hints, or coverage)"
+      ]
+    }
+  ]
+}
