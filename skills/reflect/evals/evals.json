@@ -1,0 +1,56 @@
+{
+  "skill_name": "reflect",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "ok that staging deploy was way more painful than it should have been. /reflect on that thread. The repo is evals/files/stale-deploy and the thread's transcript is transcript.jsonl in there.",
+      "expected_output": "Finds the stale deploy instruction that sent the agent to a deleted script, confirms it against the repo, proposes correcting it at the source in every copy, leaves the one-off changelog instruction alone, and waits for approval.",
+      "files": [
+        "evals/files/stale-deploy/transcript.jsonl",
+        "evals/files/stale-deploy/AGENTS.md",
+        "evals/files/stale-deploy/docs/deploy.md",
+        "evals/files/stale-deploy/docs/onboarding.md",
+        "evals/files/stale-deploy/Makefile"
+      ],
+      "expectations": [
+        "Names docs/deploy.md as stale for pointing at ./scripts/deploy.sh and proposes replacing it with `make release ENV=staging` (or the ENV-parameterized form)",
+        "Also proposes fixing the second copy of the stale command in docs/onboarding.md",
+        "The main fix is an edit to the stale docs themselves, not a new rule added to AGENTS.md, CLAUDE.md, or memory that overrides them",
+        "Does not turn the 'skip the changelog entry for this one' instruction into a proposal; if mentioned, it is labeled a one-off",
+        "Each proposal cites the specific moment that produced it (the failed deploy.sh call or the user's correction, by quote or call number)",
+        "No file in evals/files/stale-deploy is modified; the response ends by asking which proposals to apply"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/reflect evals/files/sentry-browser/transcript.jsonl . that one felt like it burned a ton of tokens just to look up one sentry issue, what should we change so it doesn't happen again",
+      "expected_output": "Identifies the browser walk through Sentry as the expensive route, quantifies it against the one-call sentry-cli path with visible arithmetic, and proposes a durable fix that names where it lands.",
+      "files": [
+        "evals/files/sentry-browser/transcript.jsonl"
+      ],
+      "expectations": [
+        "Identifies the browser (claude-in-chrome) lookups as the expensive stretch and sentry-cli as the cheaper path",
+        "States an approximate token figure for the browser route between 12,000 and 22,000 tokens, marked as approximate",
+        "States the cheaper path's cost (roughly 100 to 200 tokens, one call) and the resulting saving, with the arithmetic shown rather than a bare number",
+        "Proposes a durable change with a named destination (a skill, doc, memory, or instruction file line that routes Sentry lookups to sentry-cli), not only advice to use the CLI next time",
+        "Does not present the currency bug or its code fix as a retro finding",
+        "Makes no edits; ends by asking which proposals to apply"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/reflect evals/files/smooth-rename/transcript.jsonl",
+      "expected_output": "Guard eval: the thread went smoothly, so the right result is that there is little or nothing worth changing, with no advice invented to fill the categories.",
+      "files": [
+        "evals/files/smooth-rename/transcript.jsonl"
+      ],
+      "expectations": [
+        "States plainly that the thread was smooth and there is nothing (or almost nothing) worth changing",
+        "Makes at most one proposal, and any proposal cites a specific moment in the transcript",
+        "Does not propose adding lines to AGENTS.md, CLAUDE.md, or memory",
+        "Contains no generic best-practice advice (for example adding tests, documenting naming conventions, or creating a rename skill)",
+        "Does not write a retro or notes file"
+      ]
+    }
+  ]
+}
