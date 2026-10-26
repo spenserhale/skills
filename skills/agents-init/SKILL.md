@@ -1,129 +1,129 @@
 ---
 name: agents-init
-description: Scaffold a project for all AI coding agents using the three-layer progressive disclosure model — AGENTS.md router, docs/ policies, .agents/skills/ workflows — plus a thin CLAUDE.md adapter. Use this skill whenever the user says "set up this project for AI agents", "init agents", "create AGENTS.md", "make this repo agent-ready", "add agent guidance", "scaffold agent tooling", or wants to add multi-agent context files to a codebase. Also use it when asked to improve or migrate an existing AGENTS.md or CLAUDE.md.
+description: "Scaffold a repo for AI coding agents: an AGENTS.md router with shared coding standards, a thin CLAUDE.md adapter, and a docs structure for feature specs, decision records (ADRs), change plans, and guides, written as Starlight-compatible Markdown. Use whenever the user says 'set up this project for AI agents', 'init agents', 'create AGENTS.md', 'make this repo agent-ready', 'set up docs, specs, or ADRs', or wants to improve or migrate an existing AGENTS.md or CLAUDE.md. Not for recording one decision or documenting a finished change; use doc-it instead."
 ---
 
 # Agents Init
 
-Sets up a project with a vendor-neutral, multi-agent guidance structure so every coding agent (Claude Code, Codex, Cursor, Windsurf, GitHub Copilot, Goose, OpenCode, and future tools) works from the same source of truth without duplicated or conflicting instructions.
+Give every coding agent (Claude Code, Codex, Cursor, Copilot, OpenCode, and the rest) one source of truth: a short `AGENTS.md` router, durable docs it loads only when a task needs them, and rules that keep code, tests, and docs changing in the same commit. Plain Markdown in the repo is the default; a rendered site is an opt-in view over the same files.
 
-## The Three-Layer Model
+## The layers
 
-| Layer | Location | Purpose | When loaded |
-|-------|----------|---------|-------------|
-| Router | `AGENTS.md` | Always-on rules, progressive disclosure index | Automatically by most agents |
-| Policies | `docs/<topic>.md` | Domain-specific project explanations and constraints | On demand, only when task touches that domain |
-| Workflows | `.agents/skills/*/SKILL.md` | Repeatable multi-step tasks with steps, scripts, references | On demand, when task matches |
+| Layer | Location | Purpose | Loaded |
+|---|---|---|---|
+| Router | `AGENTS.md` + a `CLAUDE.md` pointer | Commands, docs map, always-on rules | Every session |
+| Project docs | `docs/specs/`, `docs/decisions/`, `docs/plans/`, `docs/product/` | What the product does now, why, and how each change was planned | When a task touches that area |
+| Guides | `docs/guides/<topic>.md` | Engineering policies: testing, security, deployment | When a task touches that domain |
+| Workflows | `.agents/skills/*/SKILL.md` | Repeatable multi-step tasks | When a task matches |
 
-A thin `CLAUDE.md` adapter points Claude Code to `AGENTS.md` so there's one source of truth. Other tool-specific files (Cursor rules, Windsurf rules, Cline rules, etc.) are left for those tools to manage — the key insight is that `AGENTS.md` is already read natively by most agents without any extra config.
-
-The deeper insight: agents shouldn't load everything upfront. A 300-line `AGENTS.md` that covers every edge case gets ignored or bloats context. A 200-line router that says "for security, read `docs/security.md`" gives the agent what it needs exactly when it needs it.
+A 300-line `AGENTS.md` gets skimmed; a router that says "for billing, read `docs/specs/billing.md`" gets followed. The `## Documentation` section you write into `AGENTS.md` is also the contract other skills read (`doc-it`, `agentic-driven-development`, `human-driven-development`), so keep its heading and table columns.
 
 ## Workflow
 
-### Step 1: Survey the Project
+### Step 1: Survey the project
 
-Read the project before generating anything. Understanding it well makes everything downstream more useful — especially the progressive disclosure index and the done criteria commands.
+Read before generating anything:
 
-Check for:
-- **Tech stack**: `package.json`, `composer.json`, `requirements.txt`, `go.mod`, `Gemfile`, `Cargo.toml`, `pyproject.toml`
-- **Existing AI guidance**: `AGENTS.md`, `CLAUDE.md` — check what's already there
-- **Commands**: `package.json` scripts, `Makefile`, `composer.json` scripts — find the actual test, lint, and build commands
-- **Project overview**: `README.md`
-- **Existing docs structure**: `docs/` directory — note the format (plain markdown, Docusaurus, MkDocs, etc.) and existing organization
-- **Integrations**: imports or config files hinting at Sentry, Stripe, HubSpot, Datadog, etc.
+- **Stack and commands**: `package.json`, `pyproject.toml`, `composer.json`, `go.mod`, `Cargo.toml`, `Makefile`, lockfiles. Find the real install, test, lint, and build commands.
+- **Existing guidance**: `AGENTS.md`, `CLAUDE.md`, `README.md`.
+- **Existing docs structure**: decision folders (`docs/adr/`, `doc/architecture/decisions/`, `docs/decisions/`, `docs/rfcs/`), spec tools (`openspec/`, `.specify/`), workflow output from older runs (`docs/add/`, `docs/hdd/`, `docs/superpowers/`), docs frameworks (Starlight, Docusaurus, MkDocs, VitePress, Mintlify), `CHANGELOG.md`, release tooling (release-please config, `.changeset/`).
+- **Commercial signals**: billing or entitlement code (Stripe, plans, tiers, feature flags). They decide whether pricing docs are worth offering.
+- **Conventions worth a guide**: rules an agent would otherwise get wrong, visible in config, scripts, or repeated code patterns (a lint config, a deploy script, a testing pattern used across files). One example file is not yet a convention.
 
-From this, determine:
-- What the project does (one paragraph for the AGENTS.md Purpose section)
-- Primary language(s), frameworks, and tools
-- The actual commands to run tests and builds (not `npm test` as a placeholder — the real thing)
-- Which domains have enough complexity to warrant a policy doc
-- Where policy docs should live given the existing docs structure
+Done when you can state the project's purpose in one paragraph, its real commands, and which docs roles already have a home.
 
-### Step 2: Determine the Docs Path
+### Step 2: Choose the structure: one batch of questions, or the defaults
 
-Before proposing files, figure out where `docs/` policy files should go:
+The default structure and its naming rules are in `references/project-structure.md`; read it now. In short:
 
-- If the project has no `docs/` directory: create `docs/` at the repo root with plain markdown files
-- If `docs/` exists and is plain markdown: add new files there, matching the existing naming conventions
-- If `docs/` uses a doc framework (Docusaurus, MkDocs, VitePress, etc.): add files in the appropriate source directory (e.g., `docs/docs/` for Docusaurus, `docs/` for MkDocs) and follow the existing file naming style
-- If the project uses a completely different conventions (e.g., `documentation/`, `wiki/`): use that location instead
+```
+AGENTS.md  CLAUDE.md  CHANGELOG.md
+docs/
+  index.md
+  product/vision.md          (+ pricing.md for commercial products)
+  specs/_template.md         <feature>.md: what it does now
+  decisions/_template.md     0001-keep-docs-and-decisions-in-the-repo.md (the structure record), NNNN-<title>.md: why
+  plans/_template.md         YYYY-MM-DD-<topic>.md: one change, designed and planned
+  guides/<topic>.md          engineering policies, once a domain has real ones
+```
 
-The goal is that agent-facing policy docs live alongside human-facing docs, not in a separate namespace. They're useful to both audiences.
+Ask once, all questions in one call (AskUserQuestion in Claude Code; otherwise one message), with the recommended option listed first (reorder question 3 when billing code exists). Put what you found and the proposed tree in the question text, so the batch is both the proposal and the approval:
 
-### Step 3: Propose the Structure
+1. **Structure**: Default (recommended) · Customize paths · Minimal (`AGENTS.md` + `CLAUDE.md` only)
+2. **Viewable site**: Markdown only (recommended) · Also scaffold a Starlight site that renders `docs/`
+3. **Product docs**: Vision only (recommended) · Vision + pricing and plans (recommend this one instead when Step 1 found billing code) · None
+4. **Changelog**: `CHANGELOG.md` in Keep a Changelog format (recommended) · None. When release tooling already generates it, skip the question and keep the tool.
 
-Before writing any files, tell the user what you found and what you plan to create:
+Skip any question the repo already answers (an existing Docusaurus site means no site question; existing release tooling means no changelog question), and adopt existing folders without asking (an existing `docs/adr/` is the decisions folder). Skip the whole batch and take the recommended answers when the user said "use the defaults" or "don't ask", or when no human can answer (a headless run); say so in your reply and in the structure record. Under "don't ask", later offers (commit, specs, skill stubs) become follow-ups in the report instead of questions. If they pick Customize, ask one follow-up batch for only the paths that differ; free-text answers come through the tool's Other option. Minimal writes only `AGENTS.md` and `CLAUDE.md`: skip Steps 3 to 6, and follow the Minimal variant in `references/agents-md-template.md`.
 
-- What the docs path will be and why
-- Which policy doc files you'll scaffold and why each one is relevant
-- Whether any existing files will be updated vs. left alone
-- Whether you'll create `.agents/skills/` stubs
-- Offer a choice: **minimal** (AGENTS.md + CLAUDE.md only) vs. **full** (AGENTS.md + policy docs + skill scaffold)
+### Step 3: Create the docs structure
 
-Get a quick thumbs-up before writing files. The user knows their project — they may redirect you on which domains matter or where docs should go.
+Copy each asset into the resolved paths:
 
-### Step 4: Create AGENTS.md
+| Asset | Destination | Write when |
+|---|---|---|
+| `assets/spec-template.md` | `docs/specs/_template.md` | Always (default or custom structure); drop its Availability section when there is no pricing page |
+| `assets/decision-template.md` | `docs/decisions/_template.md` | Always |
+| `assets/decision-0001.md` | `docs/decisions/NNNN-keep-docs-and-decisions-in-the-repo.md`: 0001 in a new folder, else the next free number | Always; fill every slot |
+| `assets/plan-template.md` | `docs/plans/_template.md` | Always |
+| `assets/docs-index.md` | `docs/index.md` | Always; drop rows for folders that do not exist |
+| `assets/vision.md` | `docs/product/vision.md` | When the README, the survey, or the user supplies real content |
+| `assets/pricing.md` | `docs/product/pricing.md` | Only when chosen and real plans exist; link a machine-readable catalog if the code has one |
+| `assets/changelog.md` | `CHANGELOG.md` | When chosen and none exists |
 
-Write `AGENTS.md` to the project root. Target 150–250 lines — shorter is better if the project is small. Read `references/agents-md-template.md` when you're about to write the file; it holds the section-by-section structure (Purpose, Quick start, Repo layout, Progressive disclosure, Skills, Done criteria).
+Templates are copied as they are, except folder names: rewrite `docs/decisions/` and `../decisions/` (and the other folders) to the resolved paths. Everything else is filled in: replace each `<placeholder>`, and drop rows and sections that do not apply. For the structure record, the date is today, `status: accepted`, and `decision-makers` is the person who asked for the setup (by name from the conversation, else `git config user.name`) plus the drafting agent by name (for example `Codex (drafting agent)`), even in a headless run: they chose the structure or asked for the defaults. When an earlier record already adopted decision records, the structure record links it and builds on it; it does not supersede it. A product page whose sections apply but lack data keeps one `TODO:` line per missing section, listed in the report.
 
-Key principles when writing AGENTS.md:
-- Use real commands from the project. Placeholders get ignored; real commands get run.
-- Only list progressive disclosure entries for docs that will actually exist after this run.
-- Keep it a router. If you find yourself writing a full explanation of a domain, move it to a policy doc.
+Existing records keep their format: never rewrite them to match the template. New records use the template; when the folder mixes formats, say so in the docs map.
 
-### Step 5: Create Policy Docs
+The `_` prefix keeps templates out of a Starlight build and keeps the folder in git. Do not invent feature specs; offer to write specs for existing features as a follow-up. In an existing structure, map each role onto the folder already in use instead of creating a parallel one, and leave legacy workflow folders (`docs/add/`, `docs/hdd/`) where they are, listed as history in the docs map.
 
-For each relevant domain, create a `docs/<topic>.md` (or wherever you determined in Step 2). Read `references/policy-docs.md` when choosing which domains to cover and writing each file; it holds the per-file template, the catalog of common domains with when each is relevant, and the folder layout for large domains.
+### Step 4: Write guides
 
-Don't create stubs with placeholder content. If you don't have real policy to write for a domain, leave a TODO comment in AGENTS.md instead: `# TODO: document error-handling conventions in docs/error-handling.md`
+For each convention from Step 1 with real policy to state, create `docs/guides/<topic>.md`; read `references/policy-docs.md` when choosing domains and writing each file. A domain that matters but has no policy yet gets a TODO line in `AGENTS.md`'s Progressive disclosure section instead of a stub: `- TODO <Domain> (docs/guides/<topic>.md): <what the guide will cover, and when to write it>`.
 
-### Step 6: Create CLAUDE.md
+### Step 5: Scaffold the Starlight site (only if chosen)
 
-Write a thin adapter so Claude Code follows the same source of truth:
+Read `references/starlight.md` and follow it. Done when the site builds with exit 0.
+
+### Step 6: Scaffold `.agents/skills/` (optional)
+
+When the survey found a repeatable workflow (an integration with its own CLI, a fixed debug flow, a data sync), create `.agents/skills/README.md` explaining that each subdirectory holds a `SKILL.md`, and offer to stub that one skill.
+
+### Step 7: Write AGENTS.md
+
+Written last, so it lists only what now exists. Read `references/agents-md-template.md` when writing it. Use the repo's real commands; fill the `## Documentation` table with the resolved paths; copy the `## Coding standards` section as written; list the guides, the TODO lines from Step 4, the site commands from Step 5, and the skills from Step 6. Keep it a router: when a section starts explaining a domain, move that text into a guide.
+
+### Step 8: Write the CLAUDE.md pointer
 
 ```markdown
 # CLAUDE.md
 Follow `AGENTS.md` for all project conventions, commands, and guidelines.
 ```
 
-If `CLAUDE.md` already exists:
-- Short with good content: add a line at the top pointing to AGENTS.md and keep the rest
-- Long/encyclopedic: migrate the content into AGENTS.md or the appropriate policy doc, then replace with a pointer
-- Already points to AGENTS.md: leave it alone
+An existing short `CLAUDE.md` with good content keeps it under a pointer line at the top. A long one gets migrated into `AGENTS.md` or guides, then replaced with the pointer. One that already points to `AGENTS.md` stays as is.
 
-### Step 7: Scaffold .agents/skills/ (Optional)
+### Step 9: Report
 
-If the project has clear candidates for repeatable workflows, create `.agents/skills/` with a brief README:
+List the files created, the choices recorded in the structure record, and the follow-ups: specs worth writing for existing features, TODOs left in `AGENTS.md` and the product pages, and repo problems the survey found. Offer to commit everything as one commit (`docs: adopt agent docs structure`).
 
-```markdown
-# Skills
+## Gotchas
 
-Repeatable agent workflows for this project. Each subdirectory contains a SKILL.md.
+- **No `@import` of docs in `CLAUDE.md`.** Claude Code expands imports at launch for every task; plain path references load only when needed.
+- **Every page under `docs/` needs `title` frontmatter** and no body H1. A Starlight build fails on a missing title, and a body H1 renders twice.
+- **Specs describe what the code does now.** Purpose and vision can come from the README; specs come from the code. When the README promises features the code lacks, say so in `AGENTS.md`'s Purpose and in the report instead of writing a spec for them.
+- **Broken commands are reported, not fixed.** A script that cannot work as configured (missing `tsconfig.json`, no lint config, no lockfile) goes into Quick start with a one-line warning and into the report; say whether you ran it or inferred it from the config. Repairing the repo is a separate task, and installing or building to check needs the user's go-ahead.
+- **One home per role.** A second decisions folder next to an existing `docs/adr/` splits the record; extend what exists.
+- **The site is a view, not the source.** Agents and humans edit `docs/`; the Starlight project only renders it.
 
-Add a skill when a task has well-defined inputs, steps, and expected outputs that an agent would run repeatedly.
-```
+## Updating an existing setup
 
-Offer to stub out one skill if you identified a strong candidate during the survey — things like:
-- A complex external integration with its own CLI or API (Sentry, Datadog, HubSpot)
-- A multi-step debug flow that always follows the same pattern
-- A data sync or migration workflow
+Read `AGENTS.md` and `CLAUDE.md` before touching anything. Keep what is good, move encyclopedic rules into guides and repeatable workflows into `.agents/skills/`, add or refresh the `## Documentation` table so it matches the folders that exist, add the `## Coding standards` section if it is missing, and slim `CLAUDE.md` to a pointer if it has grown.
 
-A stub is better than nothing — it shows contributors the pattern to follow.
+## Resources
 
-## What to Avoid
-
-**Don't use `@import` in CLAUDE.md for policy docs.** Claude Code's `@path/to/file` imports expand at launch and bloat the context window for every task, even irrelevant ones. Plain path references let the agent load them only when needed.
-
-**Don't create policy docs with nothing real to say.** A file that says "handle errors carefully" isn't useful. Leave a TODO comment in AGENTS.md instead.
-
-**Don't over-engineer the first pass.** A lean AGENTS.md that's actually followed beats a comprehensive one that gets ignored. The structure can grow as the team adds more docs and skills.
-
-## Updating an Existing Setup
-
-If `AGENTS.md` or `CLAUDE.md` already exist, read them before touching anything:
-
-1. Identify what's already good and keep it
-2. Move overly long content into the right layer: encyclopedic rules → policy docs, repeatable workflows → `.agents/skills/`
-3. Update the progressive disclosure index in AGENTS.md to reflect what actually exists
-4. Slim CLAUDE.md down to a pointer if it's grown large
+| Read when | File |
+|---|---|
+| Choosing paths, naming, lifecycle rules, and what counts as a strong decision | `references/project-structure.md` |
+| Writing `AGENTS.md` | `references/agents-md-template.md` |
+| Choosing and writing guides | `references/policy-docs.md` |
+| Scaffolding the Starlight site | `references/starlight.md` |

@@ -13,10 +13,10 @@ These live in their own repos (they're coupled, multi-skill workflows rather tha
 
 | Bundle | Trigger | Use it when |
 |--------|---------|-------------|
-| [agentic-driven-development](https://github.com/spenserhale/agentic-driven-development) | `/agentic-driven-development <task>` | You want it **unattended** — it researches, decides for itself (recording an Assumptions & Decisions log), builds, and opens a PR with no human in the loop. Great for firing off several in the background. |
-| [human-driven-development](https://github.com/spenserhale/human-driven-development) | `/human-driven-development <task>` | You want to **stay in the loop** — it brainstorms with you and pauses for approval at every gate (design, spec, plan, and the final merge/PR choice). |
+| [agentic-driven-development](https://github.com/spenserhale/agentic-driven-development) | `/agentic-driven-development <task>` | You want it **unattended** — it sizes the task, plans it for parallel work (superlite-style), decides for itself (rulings with their cost if wrong, decision records for strong calls), builds with tiered subagents, and opens a PR with no human in the loop. Great for firing off several in the background. |
+| [human-driven-development](https://github.com/spenserhale/human-driven-development) | `/human-driven-development <task>` | You want to **stay in the loop** — it brainstorms with you and pauses for approval at every gate (the design and its decision records, the written design, plan review with the execution choice, and the final merge/PR choice). |
 
-Each repo's README covers install (as flat `npx skills` collections today; may move to plugin-based installs). Skills are prefixed `add-` / `hdd-` respectively so both can be installed side by side.
+Each repo's README covers install (as flat `npx skills` collections today; may move to plugin-based installs). Skills are prefixed `add-` / `hdd-` respectively so both can be installed side by side. Both read the project's docs map from the `## Documentation` section that [agents-init](skills/agents-init/SKILL.md) writes, keep specs current and decisions recorded, and make every commit carry its code, tests, and docs together.
 
 ## User skills
 
@@ -31,7 +31,7 @@ Install once to your user profile; available in every project.
 | [reflect](skills/reflect/SKILL.md) | Sprint retro for a thread (`/reflect`) — what worked, what didn't, which docs or skills were stale, and which lookups burned tokens a CLI or API would have saved; routes each finding to the smallest durable fix and waits for approval. Ships a transcript reader that measures tool-result cost in Claude Code |
 | [kaizen](skills/kaizen/SKILL.md) | Quality-first working mode (`/kaizen on`) after the Toyota Production System — every failing test, warning, and deprecation notice gets noticed, then triaged: your own defects fixed first, small in-path ones fixed in passing, the rest reported at end of turn with evidence instead of fixed or ignored. `/kaizen audit [path]` measures a repo's dev process (checks, feedback time, CI gates, standing inventory) and recommends one improvement to do first |
 | [Spenser's Skills](skills/spensers-skills/SKILL.md) | Find and install skills from this repo — searches the index and runs `npx skills add spenserhale/skills@<skill>` |
-| [agents-init](skills/agents-init/SKILL.md) | Scaffold a project for all AI coding agents — creates `AGENTS.md` router, `docs/` policy files, `.agents/skills/` workflows, and a `CLAUDE.md` adapter |
+| [agents-init](skills/agents-init/SKILL.md) | Scaffold a project for all AI coding agents — an `AGENTS.md` router with a docs map and shared coding standards, a `CLAUDE.md` adapter, and a docs structure for living feature specs, decision records (ADRs), change plans, and guides in Starlight-compatible Markdown. Asks one batch of questions or uses the defaults; can scaffold a Starlight site over the same files |
 | [add-mcp](skills/add-mcp/SKILL.md) | One-command MCP server install across Claude Code, Cursor, VS Code, Codex, Gemini CLI, Goose, OpenCode, Zed, Claude Desktop |
 | [Codex CLI](skills/codex-cli/SKILL.md) | Drive OpenAI's Codex CLI as a delegated sub-agent — `codex exec` non-interactively, capture the result from stdout/JSON/schema, and control sandbox, approvals, model, and sessions |
 | [OpenCode CLI](skills/opencode-cli/SKILL.md) | Drive the OpenCode terminal agent as a delegated sub-agent — `opencode run` non-interactively, pipe context via stdin, capture stdout/JSON, and control model, agent, `--auto`, and sessions |

@@ -1,0 +1,50 @@
+{
+  "skill_name": "agents-init",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "set up this repo for AI agents. it's a small TypeScript CLI (package.json has test and build scripts). just use the defaults, don't ask me anything",
+      "expected_output": "AGENTS.md and a one-line CLAUDE.md are written, the default docs structure exists with templates and decision 0001, and no questions were asked.",
+      "files": [],
+      "expectations": [
+        "No question was asked; the response says the defaults were used",
+        "AGENTS.md contains a '## Documentation' section with a table naming docs/specs, docs/decisions, and docs/plans",
+        "AGENTS.md Quick start uses the real commands from package.json, not placeholders",
+        "AGENTS.md contains a commit rule saying code, tests, and docs land in the same commit",
+        "AGENTS.md contains a '## Coding standards' section with all six rules as written: YAGNI, DRY, Fail Fast, Simple First, Delete Aggressively, Semantic Naming",
+        "CLAUDE.md is a pointer to AGENTS.md with no @import",
+        "docs/specs/_template.md, docs/decisions/_template.md, and docs/plans/_template.md exist",
+        "docs/decisions/0001-keep-docs-and-decisions-in-the-repo.md exists with status accepted and a filled date",
+        "Every Markdown file created under docs/ starts with frontmatter that has a title, and none has a body H1",
+        "No feature specs were invented and no Starlight site was scaffolded"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Can you make this repo agent-ready? We already keep ADRs in docs/adr (0001 through 0004) and our docs site is Docusaurus under website/. Don't break either.",
+      "expected_output": "The existing docs/adr folder is mapped as the decisions folder and the Docusaurus setup is left alone; no parallel docs/decisions folder or Starlight site appears.",
+      "files": [],
+      "expectations": [
+        "No docs/decisions folder was created; AGENTS.md maps decisions to docs/adr",
+        "The existing ADR files were not renamed or rewritten",
+        "The agent did not ask about a Starlight site",
+        "If questions were asked, they were asked in a single batch, with a recommended option first",
+        "Any new decision record continues the existing sequence (0005 or later)"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "init agents for this project. I also want to be able to browse the docs as a site locally, not just read markdown on github",
+      "expected_output": "The default structure is written as plain Markdown, and a Starlight project in site/ renders docs/ through a symlink, with a successful build.",
+      "files": [],
+      "expectations": [
+        "Markdown under docs/ remains the source of truth; no docs were moved into site/",
+        "site/src/content/docs is a symlink to the repo's docs/ folder",
+        "The sidebar config nests autogenerate inside items for each group",
+        "astro-rehype-relative-markdown-links and @astrojs/markdown-remark are installed and configured",
+        "The agent ran the site build and reported exit 0",
+        "AGENTS.md Quick start lists the site dev and build commands and says docs/ is the source"
+      ]
+    }
+  ]
+}
