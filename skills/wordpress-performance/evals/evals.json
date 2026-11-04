@@ -7,7 +7,7 @@
       "expected_output": "Identifies that the lazy static entry point rebuilds the whole object graph on every fire of a hook that fires many times per request, recommends memoizing (static property or singleton binding) while keeping a removable callback form, and gives a measurement plan with fire counts per request type and an interleaved A/B.",
       "files": [],
       "expectations": [
-        "States that the_content fires multiple times per request (loops, archives, REST) and that the non-shared make() rebuilds ContentFilter and its dependencies on every fire",
+        "States that the_content can fire many times per request (for example once per post rendered in an archive loop or REST list) and that the non-shared make() rebuilds ContentFilter and its dependencies on every fire",
         "Recommends memoizing the instance (static property memo or a singleton/shared binding) rather than switching to an eager object built at boot",
         "Recommends the array form ['Acme\\Content\\ContentFilter', 'filter'] or keeps a string/array form, noting it stays removable with remove_filter (does not switch to a closure or first-class callable)",
         "Proposes measuring hook fire counts per request type (did_filter()/$wp_filters or a recorder) and verifying with an A/B or before/after comparison over many requests"

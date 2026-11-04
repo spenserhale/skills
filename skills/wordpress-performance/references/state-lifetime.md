@@ -44,7 +44,7 @@ final class Settings
 }
 ```
 
-For container singletons that hold site-derived state, prefer a scoped or per-site binding, or register a reset on `switch_blog`. Laravel-style containers offer `scoped`; Symfony uses `ResetInterface`.
+For container singletons that hold site-derived state, key the binding by blog ID or forget the instance on `switch_blog`. A Laravel-style `scoped` binding or a Symfony `ResetInterface` service resets only when the container is told a new request or job started, never on `switch_to_blog()`. Wire that reset to `switch_blog` yourself.
 
 ## Container defaults differ
 

@@ -25,6 +25,7 @@ Per request type: median and p95 wall time, CPU (user + sys), peak memory, and m
 ```php
 define('HOOK_RECORDER_ENABLED', true);
 define('HOOK_RECORDER_DIR', '/tmp/hook-recorder');      // writable dir; on VIP only per-request /tmp is writable
+define('HOOK_RECORDER_FILE', true);                     // false: skip the NDJSON file, keep New Relic attributes
 define('HOOK_RECORDER_NAMESPACES', 'Acme\\,Other\\');   // class prefixes that count as "ours"
 define('HOOK_RECORDER_WRAP', false);                    // true in dev only: exact per-callback calls and timings
 define('HOOK_RECORDER_SAMPLE_RATE', 1.0);
@@ -47,6 +48,7 @@ php scripts/summarize_recorder.php /tmp/hook-recorder/hook-recorder-YYYYMMDD.ndj
 ```
 
 - **Cost:** wrap mode adds a few percent in dev. The full callback inventory is roughly 250 KB per request on a vanilla site, so production should use summary attributes only.
+- **Hosts with ephemeral disks (WordPress VIP):** `/tmp` survives only the current request, and requests land on different containers, so a local NDJSON file cannot be summarized there. Set `HOOK_RECORDER_FILE` to false and rely on the `hr_*` New Relic attributes. For full records, ship each line to a log pipeline or an HTTP collector the app provides; one record does not fit in a 255-character attribute value.
 
 ## Classifying the request type
 

@@ -7,6 +7,9 @@
  *              when it was attached, how often its hook fired after that), classes loaded,
  *              and optionally exact per-callback call counts and timings (wrap mode).
  *
+ * Requires: PHP 8.0+ (it uses match, nullsafe and mixed; on PHP 7.x this file is a parse
+ * error that takes the site down) and WordPress 6.1+ (for $wp_filters counts).
+ *
  * Install: copy into wp-content/mu-plugins/ (on VIP: client-mu-plugins/). Load it as early
  * as possible; mu-plugins load alphabetically, so a name like "000-hook-recorder.php" helps.
  *
@@ -14,18 +17,25 @@
  *   HOOK_RECORDER_ENABLED      bool   master switch (default false)
  *   HOOK_RECORDER_SAMPLE_RATE  float  0..1 fraction of requests recorded (default 1.0)
  *   HOOK_RECORDER_DIR          string directory for NDJSON output (default: system temp dir)
- *   HOOK_RECORDER_WRAP         bool   wrap callbacks for exact counts/timings (dev only; adds overhead)
+ *   HOOK_RECORDER_FILE         bool   write the NDJSON file (default true); false = New Relic attributes only
+ *   HOOK_RECORDER_WRAP         bool   wrap callbacks to count calls and time them (dev only; adds overhead)
  *   HOOK_RECORDER_NAMESPACES   string comma-separated class prefixes that count as "ours"
  *   HOOK_RECORDER_NEWRELIC     bool   also add summary custom attributes to the New Relic transaction
  *
  * Writes: one JSON line per recorded request to HOOK_RECORDER_DIR/hook-recorder-YYYYMMDD.ndjson
+ * (file mode 0600; URIs are recorded without their query string, CLI runs as command words only).
  *
  * Design rules: never autoload anything (string callbacks are inspected with
  * class_exists($c, false), never Reflection), never throw, cheap when disabled.
- * Known limits (v0): callbacks removed before shutdown are missed by the inventory;
- * "fires after attach" is a [lower, upper] bound unless wrap mode is on; wrap mode only
- * wraps callbacks present at the wrap points (plugins_loaded, after_setup_theme, init,
- * wp_loaded) and its timings are inclusive of nested hooks.
+ * Known limits (v0):
+ *   - callbacks removed before shutdown are missed by the inventory;
+ *   - "fires after attach" is a [lower, upper] bound unless wrap mode counted the calls;
+ *   - a callback removed and re-added between two snapshots is not detected (one that is
+ *     missing at one snapshot and back at a later one is flagged "volatile");
+ *   - wrap mode only wraps callbacks present at the wrap points (plugins_loaded,
+ *     after_setup_theme, init, wp_loaded); calls made before a callback was wrapped are not
+ *     counted ("calls_complete": false), callbacks added after wp_loaded are never wrapped,
+ *     and timings include nested hooks.
  */
 
 declare(strict_types=1);
@@ -78,8 +88,12 @@ final class Recorder
     private static array $fireSnapshots = [];
     /** @var array<string, string> "hook|priority|idx" => first phase seen */
     private static array $attachedAt = [];
-    /** @var array<string, array{calls:int, first_ns:int, total_ns:int}> */
+    /** @var array<string, array{calls:int, first_ns:int, total_ns:int, hook_fires_at_wrap:int}> */
     private static array $wrapStats = [];
+    /** @var array<string, true> keys seen at an earlier snapshot but missing at the latest one */
+    private static array $missing = [];
+    /** @var array<string, true> keys detected as removed and later re-added */
+    private static array $volatile = [];
     /** @var array<string, array{resolutions:int, builds:int}> */
     private static array $container = [];
     private static array $classesAtPhase = [];
@@ -126,11 +140,24 @@ final class Recorder
         ];
     }
 
+    /** Fires per hook name. Core counts do_action() in $wp_actions and apply_filters() in $wp_filters; a name can be in both. */
+    private static function fireCounts(): array
+    {
+        global $wp_actions, $wp_filters;
+        $fires = is_array($wp_actions) ? $wp_actions : [];
+        foreach ((is_array($wp_filters) ? $wp_filters : []) as $hook => $n) {
+            $fires[$hook] = ($fires[$hook] ?? 0) + $n;
+        }
+        return $fires;
+    }
+
     private static function snapshot(string $phase): void
     {
-        global $wp_filter, $wp_actions, $wp_filters;
-        self::$fireSnapshots[$phase] = ($wp_actions ?? []) + ($wp_filters ?? []);
+        global $wp_filter;
+        $fires = self::fireCounts();
+        self::$fireSnapshots[$phase] = $fires;
         self::$classesAtPhase[$phase] = count(get_declared_classes());
+        $present = [];
         foreach ($wp_filter as $hook => $wpHook) {
             if (!$wpHook instanceof \WP_Hook) {
                 continue;
@@ -138,12 +165,23 @@ final class Recorder
             foreach ($wpHook->callbacks as $priority => $callbacks) {
                 foreach ($callbacks as $idx => $entry) {
                     $key = "{$hook}|{$priority}|{$idx}";
+                    $present[$key] = true;
                     if (!isset(self::$attachedAt[$key])) {
                         self::$attachedAt[$key] = $phase;
+                    } elseif (isset(self::$missing[$key])) {
+                        // Removed at an earlier snapshot and back now: restart its attach window.
+                        self::$attachedAt[$key] = $phase;
+                        self::$volatile[$key] = true;
+                        unset(self::$missing[$key]);
                     }
-                    if (self::$wrap && !isset(self::$wrapStats[$key]) && !in_array($hook, self::NO_WRAP, true) && !self::isOwn($entry['function'])) {
+                    $rewrap = isset(self::$wrapStats[$key]) && !self::isOwn($entry['function']);
+                    if ($rewrap) {
+                        // Same key but our wrapper is gone: the callback was removed and re-added.
+                        self::$volatile[$key] = true;
+                    }
+                    if (self::$wrap && (!isset(self::$wrapStats[$key]) || $rewrap) && !in_array($hook, self::NO_WRAP, true) && !self::isOwn($entry['function'])) {
                         self::remember($key, $entry['function']);
-                        self::$wrapStats[$key] = ['calls' => 0, 'first_ns' => 0, 'total_ns' => 0];
+                        self::$wrapStats[$key] ??= ['calls' => 0, 'first_ns' => 0, 'total_ns' => 0, 'hook_fires_at_wrap' => (int) ($fires[$hook] ?? 0)];
                         $orig = $entry['function'];
                         // Keep the array key ($idx) so remove_filter() still matches the original callback.
                         $wpHook->callbacks[$priority][$idx]['function'] = static function (...$args) use ($orig, $key) {
@@ -162,6 +200,11 @@ final class Recorder
                         };
                     }
                 }
+            }
+        }
+        foreach (self::$attachedAt as $key => $_) {
+            if (!isset($present[$key])) {
+                self::$missing[$key] = true;
             }
         }
     }
@@ -215,11 +258,35 @@ final class Recorder
         return str_starts_with($file, ABSPATH) ? substr($file, strlen(ABSPATH)) : $file;
     }
 
+    /**
+     * Leading command words of a WP-CLI run, without flags. Two words ("cron event", "option get")
+     * so positional values such as emails or IDs are not recorded; four for Cron Control, whose
+     * subcommands ("cron-control orchestrate runner-only run" vs "... list-due-batch") matter.
+     */
+    private static function cliCommand(): ?string
+    {
+        $argv = $_SERVER['argv'] ?? ($GLOBALS['argv'] ?? null);
+        if (!is_array($argv)) {
+            return null;
+        }
+        $words = [];
+        foreach (array_slice($argv, 1) as $arg) {
+            if (!is_string($arg) || $arg === '' || $arg[0] === '-') {
+                continue;
+            }
+            $words[] = $arg;
+        }
+        $keep = ($words[0] ?? '') === 'cron-control' ? 4 : 2;
+        return $words ? implode(' ', array_slice($words, 0, $keep)) : null;
+    }
+
     private static function requestType(): array
     {
+        $isCli = defined('WP_CLI') && WP_CLI;
         $type = match (true) {
-            defined('WP_CLI') && WP_CLI => 'cli',
+            // DOING_CRON is set by the time shutdown runs, also for WP-CLI cron runs and VIP Cron Control events.
             function_exists('wp_doing_cron') && wp_doing_cron() => 'cron',
+            $isCli => 'cli',
             function_exists('wp_doing_ajax') && wp_doing_ajax() => 'ajax',
             defined('REST_REQUEST') && REST_REQUEST => 'rest',
             defined('XMLRPC_REQUEST') && XMLRPC_REQUEST => 'xmlrpc',
@@ -228,7 +295,10 @@ final class Recorder
             default => 'frontend',
         };
         $subtype = null;
-        if ($type === 'frontend' && isset($GLOBALS['wp_query']) && $GLOBALS['wp_query'] instanceof \WP_Query) {
+        if ($isCli) {
+            // Separates Cron Control events and polling ("cron-control orchestrate runner-only ...") from other commands.
+            $subtype = self::cliCommand();
+        } elseif ($type === 'frontend' && isset($GLOBALS['wp_query']) && $GLOBALS['wp_query'] instanceof \WP_Query) {
             $subtype = match (true) {
                 is_404() => '404', is_search() => 'search', is_feed() => 'feed', is_front_page() => 'front_page',
                 is_home() => 'home', is_singular() => 'singular', is_archive() => 'archive', default => 'other',
@@ -242,7 +312,8 @@ final class Recorder
             'type' => $type,
             'subtype' => $subtype,
             'method' => $_SERVER['REQUEST_METHOD'] ?? null,
-            'uri' => $_SERVER['REQUEST_URI'] ?? (isset($GLOBALS['argv']) && is_array($GLOBALS['argv']) ? implode(' ', array_slice($GLOBALS['argv'], 0, 4)) : null),
+            // Path only: query strings can carry nonces or tokens.
+            'uri' => isset($_SERVER['REQUEST_URI']) && !$isCli ? strtok((string) $_SERVER['REQUEST_URI'], '?') : self::cliCommand(),
             'logged_in' => function_exists('is_user_logged_in') && is_user_logged_in(),
             'blog_id' => function_exists('get_current_blog_id') ? get_current_blog_id() : 1,
         ];
@@ -259,10 +330,10 @@ final class Recorder
 
     private static function build(): array
     {
-        global $wp_filter, $wp_actions, $wp_filters;
+        global $wp_filter;
         $ru1 = getrusage();
         $cpu = static fn(string $k): float => round((($ru1["ru_{$k}.tv_sec"] - self::$ru0["ru_{$k}.tv_sec"]) * 1e6 + ($ru1["ru_{$k}.tv_usec"] - self::$ru0["ru_{$k}.tv_usec"])) / 1000, 3);
-        $fires = ($wp_actions ?? []) + ($wp_filters ?? []);
+        $fires = self::fireCounts();
 
         $prefixes = array_values(array_filter(array_map('trim', explode(',', (string) config('HOOK_RECORDER_NAMESPACES', '')))));
         $isOurs = static function (?string $class) use ($prefixes): bool {
@@ -309,10 +380,13 @@ final class Recorder
                         'fires_after_attach_max' => $attached === 'late' ? null : $total - $atPrev,
                         'class_loaded' => $d['class'] !== null ? (class_exists($d['class'], false) || interface_exists($d['class'], false)) : null,
                         'ours' => $isOurs($d['class']),
+                        'volatile' => isset(self::$volatile[$key]),
                     ];
                     if (isset(self::$wrapStats[$key])) {
                         $s = self::$wrapStats[$key];
                         $row['calls'] = $s['calls'];
+                        // False when the hook had already fired before the callback was wrapped, or the callback was re-added.
+                        $row['calls_complete'] = $s['hook_fires_at_wrap'] === 0 && !isset(self::$volatile[$key]);
                         $row['first_call_us'] = round($s['first_ns'] / 1000, 2);
                         $row['avg_after_first_us'] = $s['calls'] > 1 ? round(($s['total_ns'] - $s['first_ns']) / ($s['calls'] - 1) / 1000, 2) : null;
                         $row['total_us'] = round($s['total_ns'] / 1000, 2);
@@ -333,7 +407,7 @@ final class Recorder
             'ts' => gmdate('c'),
             'php' => PHP_VERSION,
             'wp' => $GLOBALS['wp_version'] ?? null,
-            // Observer effects that change what gets autoloaded (see output/02-runtime-facts.md §2):
+            // Observer effects that change what gets autoloaded (skill: references/measurement.md):
             // New Relic in plugin_callbacks/all_callbacks mode resolves every add_filter callback at
             // registration; Query Monitor reflects callbacks at shutdown.
             'env' => [
@@ -376,12 +450,20 @@ final class Recorder
 
     private static function write(array $record): void
     {
-        $dir = (string) config('HOOK_RECORDER_DIR', sys_get_temp_dir());
-        if (!is_dir($dir)) {
-            @mkdir($dir, 0775, true);
+        if (config('HOOK_RECORDER_FILE', true)) {
+            $dir = (string) config('HOOK_RECORDER_DIR', sys_get_temp_dir());
+            if (!is_dir($dir)) {
+                @mkdir($dir, 0700, true);
+            }
+            $file = rtrim($dir, '/') . '/hook-recorder-' . gmdate('Ymd') . '.ndjson';
+            if (!file_exists($file) && @touch($file)) {
+                @chmod($file, 0600); // records hold request paths and class names; keep them private
+            }
+            $line = json_encode($record, JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR) . "\n";
+            if (@file_put_contents($file, $line, FILE_APPEND | LOCK_EX) === false) {
+                error_log('[hook-recorder] failed to append sample to ' . $file);
+            }
         }
-        $line = json_encode($record, JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR) . "\n";
-        @file_put_contents(rtrim($dir, '/') . '/hook-recorder-' . gmdate('Ymd') . '.ndjson', $line, FILE_APPEND | LOCK_EX);
 
         if (config('HOOK_RECORDER_NEWRELIC', false) && function_exists('newrelic_add_custom_parameter')) {
             newrelic_add_custom_parameter('hr_request_type', $record['request']['type']);

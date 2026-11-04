@@ -29,8 +29,12 @@ and prints Markdown to stdout:
 Options:
   --top=N   hooks listed per request type (default 20)
   --ours    also list callbacks whose class matches HOOK_RECORDER_NAMESPACES, with
-            median fires, % of requests where they fired, % where their class loaded,
-            and median first-call microseconds (wrap mode only)
+            median fires (exact in wrap mode, else a min-max bound), % of requests where
+            they definitely fired, % where their class loaded, and median first-call
+            microseconds (wrap mode only)
+
+Memory: every request's per-hook counts are held in memory for the medians. For files
+with tens of thousands of requests, run with `php -d memory_limit=1G` or split the file.
 
 HELP);
     exit($args === [] ? 2 : 0);
@@ -149,10 +153,15 @@ foreach ($groups as $key => $rows) {
 
 echo "\n## Hottest hooks per request type (median fires per request)\n\n";
 foreach ($groups as $key => $rows) {
-    $agg = [];
+    // Every request of the type counts; a hook absent from a request fired 0 times there.
+    $hooks = [];
     foreach ($rows as $r) {
-        foreach ($r['hook_fires'] as $hook => $n) {
-            $agg[$hook][] = $n;
+        $hooks += array_fill_keys(array_keys($r['hook_fires']), true);
+    }
+    $agg = [];
+    foreach (array_keys($hooks) as $hook) {
+        foreach ($rows as $r) {
+            $agg[$hook][] = $r['hook_fires'][$hook] ?? 0;
         }
     }
     $med = array_map($median, $agg);
@@ -168,8 +177,14 @@ if ($showOurs) {
         foreach ($rows as $r) {
             foreach ($r['ours'] as $cb) {
                 $id = "{$cb['hook']}|{$cb['priority']}|{$cb['id']}";
+                $exact = isset($cb['calls']) && ($cb['calls_complete'] ?? true);
+                // Without exact wrap-mode counts, fires after attach are only known as a [min, max] bound.
+                $lo = $exact ? $cb['calls'] : ($cb['fires_after_attach_min'] ?? 0);
+                $hi = $exact ? $cb['calls'] : ($cb['fires_after_attach_max'] ?? $lo);
                 $byId[$id]['form'] = $cb['form'];
-                $byId[$id]['fires'][] = $cb['calls'] ?? $cb['fires_after_attach_max'];
+                $byId[$id]['lo'][] = (int) $lo;
+                $byId[$id]['hi'][] = (int) $hi;
+                $byId[$id]['exact'][] = $exact ? 1 : 0;
                 $byId[$id]['loaded'][] = $cb['class_loaded'] ? 1 : 0;
                 $byId[$id]['first_us'][] = $cb['first_call_us'] ?? null;
             }
@@ -177,14 +192,19 @@ if ($showOurs) {
         if (!$byId) {
             continue;
         }
-        echo "### {$key}\n\n| hook | priority | callback | form | median fires | fired in % of requests | class loaded % | median first-call us |\n|---|---:|---|---|---:|---:|---:|---:|\n";
+        $requests = count($rows);
+        echo "### {$key}\n\nPercentages use all {$requests} requests of this type (callbacks registered conditionally count as not fired where absent). `fires` is exact when wrap mode counted every call, otherwise a min–max bound.\n\n";
+        echo "| hook | priority | callback | form | median fires | definitely fired in % of requests | class loaded % | median first-call us |\n|---|---:|---|---|---:|---:|---:|---:|\n";
         ksort($byId);
         foreach ($byId as $id => $d) {
             [$hook, $prio, $cb] = explode('|', $id, 3);
-            $firedPct = 100 * count(array_filter($d['fires'], static fn($x) => $x > 0)) / count($d['fires']);
+            $firedPct = 100 * count(array_filter($d['lo'], static fn($x) => $x > 0)) / $requests;
+            $lo = $median($d['lo']);
+            $hi = $median($d['hi']);
+            $fires = array_sum($d['exact']) === count($d['exact']) || $lo === $hi ? (string) $lo : "{$lo}–{$hi}";
             $first = $median($d['first_us']);
-            printf("| `%s` | %s | `%s` | %s | %s | %.0f%% | %.0f%% | %s |\n", $hook, $prio, $cb, $d['form'], $median($d['fires']), $firedPct,
-                100 * array_sum($d['loaded']) / count($d['loaded']), is_nan($first) ? '—' : sprintf('%.1f', $first));
+            printf("| `%s` | %s | `%s` | %s | %s | %.0f%% | %.0f%% | %s |\n", $hook, $prio, $cb, $d['form'], $fires, $firedPct,
+                100 * array_sum($d['loaded']) / $requests, is_nan($first) ? '—' : sprintf('%.1f', $first));
         }
         echo "\n";
     }
