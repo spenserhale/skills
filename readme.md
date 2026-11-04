@@ -80,6 +80,7 @@ For WordPress repos. Install per project (no `--global` flag).
 | [WordPress CLI](skills/wordpress-cli/SKILL.md) | WP-CLI commands for managing WordPress — plugins, themes, users, database, content, cache, and more |
 | [WP VIP CLI](skills/wp-vip-cli/SKILL.md) | VIP-CLI for local dev environments (`vip dev-env`) and remote VIP Platform commands (`vip wp`) |
 | [WP Components](skills/wp-components/SKILL.md) | `@wordpress/components` reference for Gutenberg block-editor UI — picking the right component, inspector controls, toolbars, modals, and per-component docs in `references/` |
+| [WordPress Performance](skills/wordpress-performance/SKILL.md) | Server-side WordPress performance: slow uncached requests (wp-admin, REST, admin-ajax), plugin boot cost, WP-Cron/WP-CLI overhead, and hook wiring (eager vs lazy vs memoized callbacks, static vs instance). Measure-first workflow with a hook-recorder mu-plugin, a cost model with measured numbers, callback-form rules, and WordPress VIP gotchas (Cron Control boots, New Relic and Query Monitor observer effects) |
 
 **Install all WordPress skills** into the current repo:
 
@@ -87,7 +88,8 @@ For WordPress repos. Install per project (no `--global` flag).
 npx skills add spenserhale/skills --agent '*' -y \
   --skill wordpress-cli \
   --skill wp-vip-cli \
-  --skill wp-components
+  --skill wp-components \
+  --skill wordpress-performance
 ```
 
 ## Project skills
