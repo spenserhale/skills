@@ -2,7 +2,7 @@
 name: wordpress-performance
 description: "Diagnose and fix server-side WordPress performance: slow uncached requests (TTFB in wp-admin, REST, admin-ajax, logged-in pages), plugin boot cost, WP-Cron and WP-CLI overhead, and hook wiring (eager vs lazy vs memoized callbacks, static vs instance classes, DI container use). Use when the user asks why WordPress or PHP is slow, wants to profile or cut CPU or memory per request, reviews add_action or add_filter code, or mentions New Relic, Query Monitor or OPcache on WordPress, even if they never say 'performance'. Not for front-end Core Web Vitals or asset optimization; for vip CLI commands use wp-vip-cli."
 license: MIT
-compatibility: Scripts need PHP 8.1+ CLI. The recorder asset runs inside WordPress 6.1+ as an mu-plugin.
+compatibility: Scripts need PHP 8.1+ CLI. The recorder mu-plugin needs PHP 8.0+ (a parse error on 7.x) and WordPress 6.1+.
 metadata:
   author: spenserhale
   version: "0.1"
@@ -50,7 +50,7 @@ Callback forms, as WordPress `add_filter()` sees them:
 - `is_callable()`, `method_exists()` and Reflection on callback strings autoload the class. Keep instrumentation passive (`class_exists($class, false)`).
 - Composer prepends its autoloader, so an early autoload logger misses later loaders. Diff `get_declared_classes()` between phases instead.
 - PHP-FPM status, slowlog and access-log timings stop before shutdown functions, so WordPress's `shutdown` work is invisible there. Take the final sample at `shutdown` priority `PHP_INT_MAX`.
-- Core removes and re-adds some callbacks mid-request (`wpautop` on `the_content`), so call counts inferred from hook fire counts are off for those; wrap mode gives exact counts.
+- Core removes and re-adds some callbacks mid-request (`wpautop` on `the_content`), so call counts inferred from hook fire counts are off for those. Wrap mode counts calls exactly only from the point a callback is wrapped (end of `plugins_loaded` onward); the recorder marks rows `calls_complete: false` or `volatile: true` when that does not hold.
 - With warm OPcache a class loads in well under a microsecond; with OPcache off or on Docker Desktop bind mounts it is far slower. Calibrate dev numbers against production before trusting absolutes.
 - `wp profile` times only top-level hooks, runs without OPcache under the CLI, gives `'Class::method'` callbacks empty names, and is blocked on VIP hosted environments.
 

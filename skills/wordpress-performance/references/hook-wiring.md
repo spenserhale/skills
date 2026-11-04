@@ -123,7 +123,7 @@ A plugin's own count can differ wildly; measure it.
 
 ## Review checklist for registration code
 
-- [ ] Every string or array callback points at a static method.
+- [ ] Every class-method callback written as a string (`'Foo::m'`) or class-string array (`['Foo', 'm']`) points at a static method. Function names (W0) and object arrays (W1, W7) are fine as they are.
 - [ ] No `Foo::m(...)` or `Closure::fromCallable()` on hooks that rarely fire.
 - [ ] Lazy static entry points memoize what they build.
 - [ ] Constructors of services built at boot do no I/O.
