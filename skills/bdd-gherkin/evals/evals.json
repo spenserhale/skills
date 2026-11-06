@@ -1,0 +1,53 @@
+{
+  "skill_name": "bdd-gherkin",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "we're adding a 'favorite games' feature to our TS game launcher (vitest for unit tests, playwright already set up). users can favorite an installed game, favorites show at the top of the library, max 10 favorites. I want BDD style specs for this that actually run, and I want the vitest tests linked back to them somehow. draft it",
+      "expected_output": "Lays out rules, examples, and open questions first, then a declarative Gherkin feature with Rule blocks and one ID tag per scenario, Cucumber-JS step definitions that call a driver, and Vitest tests carrying the matching IDs in their names, with a command to run one ID across both suites.",
+      "files": [],
+      "expectations": [
+        "Before or alongside the feature file, the response lists rules, concrete examples, and at least one open question (for example what happens on the 11th favorite or when a favorited game is uninstalled)",
+        "The .feature file uses Feature, Rule, and Scenario, and every Scenario has exactly one ID tag in a PREFIX-NNN form, with no ID repeated",
+        "No step text contains CSS selectors, URLs, or click instructions",
+        "Step definitions use Cucumber-JS (@cucumber/cucumber) with Cucumber Expressions such as {string} or {int}, not a different BDD framework",
+        "At least one Vitest test name contains a scenario ID, and the response shows a command that runs one ID through both Cucumber-JS (--tags) and Vitest (-t)",
+        "The response states that IDs record relationships and do not prove coverage, or equivalent"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "can you check the BDD traceability in evals/files/launcher? feature files are under tests/features, pytest for everything. tell me what's broken and fix the tagging. don't change launcher/ code",
+      "expected_output": "Runs the trace script, reports the duplicate GL-002, the orphan GL-009 in the unit tests, and the untagged scenario, then retags with fresh IDs so the trace runs clean, leaving launcher/ untouched.",
+      "files": [
+        "evals/files/launcher/pytest.ini",
+        "evals/files/launcher/launcher/__init__.py",
+        "evals/files/launcher/launcher/core.py",
+        "evals/files/launcher/tests/features/game_launch.feature",
+        "evals/files/launcher/tests/unit/test_launcher.py",
+        "evals/files/launcher/tests/integration/test_activity.py"
+      ],
+      "expectations": [
+        "The response reports GL-002 tagged on two scenarios, GL-009 used in tests/unit/test_launcher.py but on no scenario, and the untagged 'Failed launch is not recorded' scenario",
+        "In the final tree every scenario in game_launch.feature has exactly one ID and no ID appears on two scenarios",
+        "test_uninstalled_game_offers_install references the ID of the 'Launch a game that is not installed' scenario instead of GL-009",
+        "test_launch_records_activity carries the ID of the 'Activity records a launch' scenario",
+        "Running scripts/trace_ids.py --root evals/files/launcher on the final tree exits 0",
+        "launcher/core.py and launcher/__init__.py are unmodified"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Our .NET 9 API uses xUnit. PM wants acceptance criteria for the refund endpoint written so they can read them and so they run in CI: refunds allowed within 30 days, partial refunds can't exceed the original amount, refunded orders can't be refunded again. how should I set this up?",
+      "expected_output": "Recommends Reqnroll with the xUnit package, writes a readable feature with a Rule per criterion and ID-tagged scenarios using concrete amounts and dates, shows binding classes with constructor injection calling the API through a client, and shows tagging xUnit unit tests with the same IDs as Category traits so one dotnet test filter selects both.",
+      "files": [],
+      "expectations": [
+        "Recommends Reqnroll (Reqnroll.xUnit package), not SpecFlow, and not a hand-rolled Gherkin parser",
+        "The feature has one Rule per stated criterion (30 days, partial cap, no double refund) with at least one scenario each",
+        "Scenarios use concrete values such as specific amounts or day counts rather than vague placeholders like 'some amount'",
+        "Binding code uses [Binding] and [Given]/[When]/[Then] attributes and calls the API or a client, not internal private methods",
+        "Shows lower-level xUnit tests tagged with the scenario ID as [Trait(\"Category\", ...)] and a dotnet test --filter \"Category=<ID>\" command"
+      ]
+    }
+  ]
+}
