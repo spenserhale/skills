@@ -1,0 +1,14 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/wp-env.json",
+	"testsEnvironment": false,
+	"phpVersion": "{{PHP_MIN}}",
+	"plugins": [],
+	"mappings": {
+		"wp-content/plugins/{{SLUG}}": "."
+	},
+	"port": {{TEST_PORT}},
+	"config": {
+		"WP_DEBUG": true,
+		"WP_ENVIRONMENT_TYPE": "local"
+	}
+}

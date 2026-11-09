@@ -1,0 +1,29 @@
+{
+  "name": "{{SLUG}}",
+  "private": true,
+  "description": "{{DESCRIPTION}}",
+  "license": "GPL-3.0-or-later",
+  "engines": {
+    "node": ">=24.18.0"
+  },
+  "scripts": {
+    "build": "wp-scripts build --webpack-src-dir=resources/js --output-path=build",
+    "start": "wp-scripts start --webpack-src-dir=resources/js --output-path=build",
+    "typecheck": "tsc --noEmit",
+    "lint:js": "wp-scripts lint-js resources/js",
+    "format": "wp-scripts format resources/js",
+    "env": "wp-env"
+  },
+  "dependencies": {
+    "@wordpress/api-fetch": "^8.1.0",
+    "@wordpress/components": "^44.0.0",
+    "@wordpress/element": "^10.1.0",
+    "@wordpress/i18n": "^7.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@wordpress/env": "^12.1.0",
+    "@wordpress/scripts": "^37.1.0",
+    "typescript": "~6.0.3"
+  }
+}

@@ -1,0 +1,12 @@
+/vendor/
+/node_modules/
+/build/
+.wp-env.override.json
+.wp-env.test.override.json
+.phpunit.result.cache
+.phpunit.cache/
+/coverage/
+.DS_Store
+.idea/workspace.xml
+.idea/sonarlint/
+*.log

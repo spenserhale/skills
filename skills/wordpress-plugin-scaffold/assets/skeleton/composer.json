@@ -1,0 +1,65 @@
+{
+    "name": "{{VENDOR}}/{{SLUG}}",
+    "description": "{{DESCRIPTION}}",
+    "type": "wordpress-plugin",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "{{AUTHOR}}"{{AUTHOR_EMAIL_JSON}}
+        }
+    ],
+    "require": {
+        "php": ">={{PHP_MIN}}",
+        "composer/installers": "^2.3"
+    },
+    "require-dev": {
+        "php-stubs/wordpress-tests-stubs": "^7.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "phpunit/phpunit": "^9.6",
+        "rector/rector": "^2.0",
+        "szepeviktor/phpstan-wordpress": "^2.0",
+        "wp-phpunit/wp-phpunit": "^7.0",
+        "yoast/phpunit-polyfills": "^4.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "{{NAMESPACE_JSON}}\\": "src/",
+            "{{NAMESPACE_JSON}}\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "{{PHP_MIN}}"
+        },
+        "process-timeout": 900,
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/installers": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "scripts": {
+        "env:start": "npx --yes @wordpress/env@12 start",
+        "env:debug": "npx --yes @wordpress/env@12 start --xdebug=debug,profile,trace",
+        "env:stop": "npx --yes @wordpress/env@12 stop",
+        "test:start": "npx --yes @wordpress/env@12 start --config=.wp-env.test.json",
+        "test:stop": "npx --yes @wordpress/env@12 stop --config=.wp-env.test.json",
+        "test": "npx --yes @wordpress/env@12 run --config=.wp-env.test.json --env-cwd=wp-content/plugins/{{SLUG}} cli vendor/bin/phpunit",
+        "analyse": "phpstan analyse --memory-limit=1G",
+        "rector": "rector process --dry-run",
+        "rector:fix": "rector process",
+        "classmap": "@php bin/classmap.php",
+        "classmap:check": "@php bin/classmap.php --check",
+        "check": [
+            "@classmap:check",
+            "@analyse",
+            "@rector"
+        ]
+    },
+    "scripts-descriptions": {
+        "test": "Run PHPUnit inside the wp-env test environment (start it first with composer test:start)",
+        "check": "Fast local gate: classmap freshness, PHPStan, Rector dry run"
+    }
+}

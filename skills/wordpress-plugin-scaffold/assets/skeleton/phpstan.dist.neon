@@ -1,0 +1,12 @@
+# szepeviktor/phpstan-wordpress and phpstan-phpunit are auto-included by phpstan/extension-installer.
+parameters:
+    level: max
+    phpVersion: {{PHP_ID}}
+    paths:
+        - {{SLUG}}.php
+        - src/
+        - tests/
+    excludePaths:
+        - src/classmap.php
+    scanFiles:
+        - vendor/php-stubs/wordpress-tests-stubs/wordpress-tests-stubs.php

@@ -1,0 +1,46 @@
+{
+  "skill_name": "wordpress-plugin-scaffold",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "set up a new wordpress plugin skeleton for me, modern 2026 setup: php 8.3, composer, wp-env for local + phpunit integration tests, phpstan, CI on github actions, and a small react/typescript admin screen. plugin is 'Acme Redirects', slug acme-redirects, namespace Acme\\Redirects. i install my plugins on client sites via composer from the git repo, not wp.org. put it in /tmp/eval-acme-redirects",
+      "expected_output": "A rendered skeleton whose test command works on wp-env 12, with a built-branch deploy, a classmap autoloader, PHPStan at max, and a React admin screen built by @wordpress/scripts, verified by running the gates.",
+      "files": [],
+      "expectations": [
+        "The composer test script runs PHPUnit through a separate wp-env config (for example .wp-env.test.json) with `wp-env run --config=... --env-cwd=... cli ...`, and does not use the tests-cli container or env.tests",
+        "No custom tests/wp-config.php or wp-tests-config.php is written; tests/bootstrap.php reads WP_TESTS_DIR",
+        "Plugin hooks are registered as [Class::class, 'method'] arrays (not first-class callables or closures), and rector.php skips ArrayToFirstClassCallableRector",
+        "CI publishes a <branch>-built branch (or equivalent) containing build/ while build/ stays gitignored on the source branch",
+        "The PHPStan config file is named phpstan.dist.neon or phpstan.neon(.dist) and sets level max (or 9+)",
+        "The main plugin file contains no PHP 8-only syntax before the PHP version guard",
+        "The agent ran composer install and composer check (or PHPStan) and reported the actual results"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "after upgrading @wordpress/env my plugin's `composer test` is broken. script is `wp-env run tests-cli --env-cwd=wp-content/plugins/cloudflare-enterprise-cache vendor/bin/phpunit`, .wp-env.json is just {\"phpVersion\": \"8.2\", \"plugins\": [\".\"]}. tests/bootstrap.php loads wp-phpunit and defines WP_TESTS_CONFIG_FILE_PATH to a tests/wp-config.php that does define('DB_NAME', getenv('WORDPRESS_DB_NAME', 'wordpress')). how do i fix it properly?",
+      "expected_output": "Explains that wp-env 11+ no longer creates the tests environment by default (testsEnvironment/env.tests deprecated), moves tests to a separate config file run with --config placed before the container name, drops the custom wp-config in favour of WP_TESTS_DIR, and points out the getenv second-argument bug.",
+      "files": [],
+      "expectations": [
+        "Says the tests-cli container / tests environment is no longer created by default in current wp-env (deprecated testsEnvironment or env.tests)",
+        "Proposes a separate config such as .wp-env.test.json started with `wp-env start --config=...`",
+        "The fixed run command places --config and --env-cwd before the container name `cli`",
+        "Recommends removing the custom tests/wp-config.php and using WP_TESTS_DIR from wp-env",
+        "Points out that getenv()'s second argument is local_only, not a default value"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I'm writing a plugin that pushes order events to a third-party webhook. Where should the API key and endpoint come from, how should other plugins trigger a push, and how should errors get logged? No settings page please, it's deployed via composer to a WordPress VIP site.",
+      "expected_output": "Recommends a namespaced config filter fed from env or constants, a public action/filter as the trigger API with array callbacks, a memoized readonly client built from the filter, WP_Error at hook boundaries, and a writerless log action; notes VIP specifics (no activation hook for mu-plugins, no error_log in plugin code, batching cron).",
+      "files": [],
+      "expectations": [
+        "Secrets come from a namespaced filter (for example vendor/plugin/config or api_credentials) supplied by env vars or constants, not wp_options",
+        "Other code triggers pushes through a namespaced do_action/apply_filters hook rather than calling plugin classes directly",
+        "Errors are returned as WP_Error (or a result object) at the hook boundary, with exceptions caught and wrapped",
+        "Logging is emitted through a plugin log action for the site to handle, not written with error_log() inside the plugin",
+        "Mentions that Composer/mu-plugin installs on VIP do not fire activation hooks, or that cron events should be batched"
+      ]
+    }
+  ]
+}

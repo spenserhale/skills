@@ -1,0 +1,30 @@
+# Replaces .gitignore on the `<branch>-built` deploy branch.
+# Everything listed here is left out of what Composer installs on sites.
+# build/ is NOT listed: the compiled assets ship.
+/vendor/
+/node_modules/
+/.github/
+/.idea/
+/.vscode/
+/bin/
+/tests/
+/resources/
+/coverage/
+.phpunit.result.cache
+.phpunit.cache/
+.editorconfig
+.gitignore
+.deploy.gitignore
+.nvmrc
+.wp-env*.json
+composer.lock
+package.json
+package-lock.json
+tsconfig.json
+phpunit.xml.dist
+phpstan.dist.neon
+rector.php
+AGENTS.md
+CLAUDE.md
+.DS_Store
+*.log

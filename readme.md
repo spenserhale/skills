@@ -83,6 +83,7 @@ For WordPress repos. Install per project (no `--global` flag).
 | [WP VIP CLI](skills/wp-vip-cli/SKILL.md) | VIP-CLI for local dev environments (`vip dev-env`) and remote VIP Platform commands (`vip wp`) |
 | [WP Components](skills/wp-components/SKILL.md) | `@wordpress/components` reference for Gutenberg block-editor UI — picking the right component, inspector controls, toolbars, modals, and per-component docs in `references/` |
 | [WordPress Performance](skills/wordpress-performance/SKILL.md) | Server-side WordPress performance: slow uncached requests (wp-admin, REST, admin-ajax), plugin boot cost, WP-Cron/WP-CLI overhead, and hook wiring (eager vs lazy vs memoized callbacks, static vs instance). Measure-first workflow with a hook-recorder mu-plugin, a cost model with measured numbers, callback-form rules, and WordPress VIP gotchas (Cron Control boots, New Relic and Query Monitor observer effects) |
+| [WordPress Plugin Scaffold](skills/wordpress-plugin-scaffold/SKILL.md) | Render a modern (2026) WordPress plugin skeleton and gate it: wp-env 12 with a separate test config, PHPUnit integration tests, PHPStan max, Rector 2, a generated classmap autoloader with no runtime `vendor/`, hooks-as-API conventions, an optional React/TypeScript admin screen on `@wordpress/scripts`, and CI that publishes a `<branch>-built` branch for Composer installs. Also covers upgrading older plugin repos (`tests-cli` breakage, Rector/PHPStan config drift) |
 
 **Install all WordPress skills** into the current repo:
 
@@ -91,7 +92,8 @@ npx skills add spenserhale/skills --agent '*' -y \
   --skill wordpress-cli \
   --skill wp-vip-cli \
   --skill wp-components \
-  --skill wordpress-performance
+  --skill wordpress-performance \
+  --skill wordpress-plugin-scaffold
 ```
 
 ## Project skills

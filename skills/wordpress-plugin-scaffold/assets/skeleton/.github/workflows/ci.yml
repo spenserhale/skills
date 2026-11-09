@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches-ignore: ['**-built']
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '{{PHP_MIN}}'
+          coverage: none
+
+      - uses: ramsey/composer-install@v4
+
+      - name: Classmap, PHPStan, Rector
+        run: composer check
+{{CI_JS_CHECK}}
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '{{PHP_MIN}}'
+          coverage: none
+
+      - uses: ramsey/composer-install@v4
+
+      - name: Start wp-env test environment
+        run: npx --yes @wordpress/env@12 start --config=.wp-env.test.json
+
+      - name: PHPUnit
+        run: npx --yes @wordpress/env@12 run --config=.wp-env.test.json --env-cwd=wp-content/plugins/{{SLUG}} cli vendor/bin/phpunit
+
+  # Publishes `<branch>-built`: the branch Composer installs on sites.
+  # Tracked dev files are dropped by re-adding everything under .deploy.gitignore.
+  built-branch:
+    needs: [check, test]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+{{CI_JS_BUILD}}
+      - name: Commit and push the built branch
+        run: |
+          BRANCH="${GITHUB_REF_NAME}-built"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          mv .deploy.gitignore .gitignore
+          git rm -r -q --cached .
+          git add -A
+          git commit -q -m "Built from ${GITHUB_SHA}"
+          git push --force origin "$BRANCH"
