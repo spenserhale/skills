@@ -39,6 +39,7 @@ Install once to your user profile; available in every project.
 | [hand-and-brain](skills/hand-and-brain/SKILL.md) | "Be the brain" or `/hand-and-brain` — a top-tier model stays the brain (decisions, briefs, review) and routes reading, search, and mechanical work to cheaper same-family subagents (Opus → Sonnet/Haiku, Sol → Terra/Luna, GLM → GLM-flash) to save context and tokens; cross-harness hands only when you name them |
 | [with-advisor](skills/with-advisor/SKILL.md) | "Use X as an advisor" or `/with-advisor` — a mid-tier model runs the long thread and consults a stronger same-family model (Sonnet → Opus, Terra → Sol, GLM-flash → GLM) as a read-only advisor for plan review, hard decisions, and getting unstuck; cross-harness advisors only when you name them |
 | [1Password CLI](skills/1password-cli/SKILL.md) | `op inject` for securely populating config and `.env` files from vault secrets |
+| [SSH Connection Reuse](skills/ssh-connection-reuse/SKILL.md) | One authenticated SSH connection per host (OpenSSH `ControlMaster`), so a 1Password or hardware-backed agent approves once per host instead of once per command; open it before fanning out, the config block, the trade-off, and what a locked agent looks like |
 | [agent-native-cli-creator](skills/agent-native-cli-creator/SKILL.md) | Best practices for designing CLIs that AI agents can drive reliably — non-interactive flags, structured output (TOON / JSON / CSV), enumerated errors, idempotent mutations, profiles, `--wait`, three-layer introspection |
 | [mcp-creator](skills/mcp-creator/SKILL.md) | Build MCP servers — overview + router into the official spec (architecture, transports, resources, prompts, auth, client features) with an opinionated best-practices guide; hands off tools to `mcp-tools-creator` |
 | [mcp-tools-creator](skills/mcp-tools-creator/SKILL.md) | Design MCP tools agents use reliably — `domain_verb_noun` naming, intent over CRUD, strong schemas, contextful returns, error/annotation patterns; spec + opinionated best-practices |
@@ -65,6 +66,7 @@ npx skills add spenserhale/skills --global --agent '*' -y \
   --skill hand-and-brain \
   --skill with-advisor \
   --skill 1password-cli \
+  --skill ssh-connection-reuse \
   --skill agent-native-cli-creator \
   --skill mcp-creator \
   --skill mcp-tools-creator \

@@ -1,0 +1,4 @@
+interface:
+  display_name: "SSH Connection Reuse"
+  short_description: "One SSH approval per host, not one per command"
+  default_prompt: "Use $ssh-connection-reuse to stop 1Password asking on every ssh command"

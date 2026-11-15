@@ -1,0 +1,39 @@
+{
+  "skill_name": "ssh-connection-reuse",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "every ssh you run to the build box makes 1Password pop up again, can you make that stop? it's buildbox.lan",
+      "expected_output": "The agent explains connection sharing, shows a ControlMaster block for buildbox.lan only with a modest ControlPersist and a short ControlPath, states the trade-off, and asks before editing ~/.ssh/config.",
+      "files": [],
+      "expectations": [
+        "Proposes ControlMaster auto with ControlPath under ~/.ssh/cm and a ControlPersist of an hour or so",
+        "Scopes the block to the named host, never Host *",
+        "Says that any process running as the user can use an open connection",
+        "Does not edit ~/.ssh/config before the user agrees"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "run the test suite on all three of these at the same time and tell me which fail: mini.home.arpa, 10.0.0.21, nas.lan (repo is ~/src/app on each)",
+      "expected_output": "The agent checks or opens one shared connection per host before starting the three runs in parallel, so each host asks for at most one approval.",
+      "files": [],
+      "expectations": [
+        "Checks sharing with ssh -G or ssh -O check, or passes the ControlMaster options itself",
+        "Opens a shared connection per host (ssh -fN or a first command) before fanning out",
+        "Does not start several first connections to the same host at once"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "ssh to torrent.home.arpa just hangs after 'Server accepts key' and then says communication with agent failed",
+      "expected_output": "The agent identifies a locked or waiting SSH agent, asks the user to unlock or approve, and does not loop retries or fall back to passwords.",
+      "files": [],
+      "expectations": [
+        "Names a locked agent or a pending approval as the likely cause",
+        "Asks the user to unlock or approve instead of retrying in a loop",
+        "Does not suggest password authentication or disabling the agent"
+      ]
+    }
+  ]
+}
