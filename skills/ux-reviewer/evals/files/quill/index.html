@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Quill</title>
+<style>
+  :root { --bg:#f6f5f1; --panel:#fff; --line:#dedbd2; --text:#22211e; --muted:#6b6860; --accent:#2f6f4f; --err:#b3382c; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; background:var(--bg); color:var(--text); }
+  header { display:flex; justify-content:space-between; align-items:center; padding:12px 24px; border-bottom:1px solid var(--line); background:var(--panel); }
+  header .brand { font-weight:700; }
+  .shell { display:flex; min-height:calc(100vh - 54px); }
+  nav { width:190px; padding:18px 12px; border-right:1px solid var(--line); display:flex; flex-direction:column; gap:4px; }
+  nav button { all:unset; cursor:pointer; padding:7px 10px; border-radius:8px; color:var(--muted); }
+  nav button:hover, nav button[aria-current="page"] { background:#eceae3; color:var(--text); }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  main { flex:1; padding:26px 34px; max-width:900px; }
+  h1 { font-size:20px; margin:0 0 14px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; }
+  .row { display:flex; gap:24px; align-items:center; justify-content:space-between; padding:16px 20px; border-top:1px solid var(--line); }
+  .row:first-child { border-top:0; }
+  .label { font-weight:600; }
+  .help { color:var(--muted); font-size:14px; margin-top:3px; max-width:520px; }
+  select, input[type=text], input[type=password] { background:#fff; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:7px 10px; font:inherit; min-width:210px; }
+  button.btn { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:8px 14px; font:inherit; cursor:pointer; }
+  button.ghost { background:transparent; color:var(--text); border:1px solid var(--line); border-radius:8px; padding:7px 12px; font:inherit; cursor:pointer; }
+  .err { color:var(--err); margin:0 0 12px; }
+  .ok { color:var(--accent); }
+  .form { padding:16px 20px; display:grid; gap:12px; border-top:1px solid var(--line); }
+  .form label { display:grid; gap:4px; font-size:14px; color:var(--muted); }
+  .note { padding:12px 20px; border-top:1px solid var(--line); }
+  .note:first-child { border-top:0; }
+  .switch { display:inline-flex; align-items:center; gap:8px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// Eval fixture for the ux-reviewer skill. In-memory state only: a reload is a fresh first run.
+const state = {
+  storage: [],            // connected storage accounts: {provider}
+  storageForm: null,      // {provider, key, secret}
+  storageError: '',
+  passphrase: '',
+  passForm: null,         // {a, b}
+  passError: '',
+  backupsOn: false,
+  destination: 'none',
+  folder: '',
+  schedule: 'manually',
+  backupError: '',
+};
+const PROVIDERS = ['Amazon S3', 'Backblaze B2', 'Dropbox', 'Google Drive', 'iCloud Drive'];
+const NEEDS_KEYS = ['Amazon S3', 'Backblaze B2'];
+const SETTINGS = ['General', 'Editor', 'Accounts', 'Security', 'Backups', 'About'];
+const $ = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content; };
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const route = () => (location.hash.replace(/^#\/?/, '') || 'notes').toLowerCase();
+const go = (r) => { location.hash = '#/' + r; };
+
+const pages = {
+  notes: () => `<h1>All notes</h1><div class="card">
+    <div class="note"><span class="label">Kitchen remodel</span><div class="help">Edited yesterday</div></div>
+    <div class="note"><span class="label">Reading list</span><div class="help">Edited 3 days ago</div></div>
+    <div class="note"><span class="label">Trip to Lisbon</span><div class="help">Edited last week</div></div></div>`,
+  'settings/general': () => `<h1>General</h1><div class="card">
+    <div class="row"><div><div class="label">Notes folder</div><div class="help">~/Documents/Quill</div></div><button class="ghost" disabled>Change&hellip;</button></div>
+    <div class="row"><div><div class="label">Language</div></div><select aria-label="Language"><option>English</option><option>Français</option></select></div>
+    <div class="row"><div><div class="label">Open Quill at login</div></div><select aria-label="Open Quill at login"><option>Off</option><option>On</option></select></div></div>`,
+  'settings/editor': () => `<h1>Editor</h1><div class="card">
+    <div class="row"><div><div class="label">Font size</div></div><select aria-label="Font size"><option>14</option><option selected>16</option><option>18</option></select></div>
+    <div class="row"><div><div class="label">Check spelling</div></div><select aria-label="Check spelling"><option>On</option><option>Off</option></select></div></div>`,
+  'settings/about': () => `<h1>About</h1><div class="card"><div class="note">Quill 3.2.0</div><div class="note">This Mac is signed in to iCloud as dana@example.com.</div></div>`,
+  'settings/accounts': () => {
+    const f = state.storageForm;
+    return `<h1>Accounts</h1><div class="card">
+      <div class="note"><span class="label">Cloud storage</span>
+        ${state.storage.length ? state.storage.map((s) => `<div class="help">${esc(s.provider)} &middot; <span class="ok">Connected</span></div>`).join('') : '<div class="help">No storage connected.</div>'}</div>
+      ${f ? `<div class="form">
+        <label>Provider<select id="sprovider">${PROVIDERS.map((p) => `<option ${f.provider === p ? 'selected' : ''}>${p}</option>`).join('')}</select></label>
+        ${NEEDS_KEYS.includes(f.provider) ? `<label>Access key ID<input type="text" id="skey" value="${esc(f.key)}"></label>
+          <label>Secret access key<input type="password" id="ssecret" value="${esc(f.secret)}"></label>` : ''}
+        ${state.storageError ? `<div class="err" role="alert">${esc(state.storageError)}</div>` : ''}
+        <div><button class="btn" id="sconnect">Connect</button> <button class="ghost" id="scancel">Cancel</button></div></div>`
+      : `<div class="form"><div><button class="btn" id="sadd">Connect storage</button></div></div>`}
+    </div>`;
+  },
+  'settings/security': () => {
+    const f = state.passForm;
+    return `<h1>Security</h1><div class="card">
+      <div class="row"><div><div class="label">Lock Quill when idle</div></div><select aria-label="Lock Quill when idle"><option>Never</option><option>After 5 minutes</option><option>After 1 hour</option></select></div>
+      <div class="row"><div><div class="label">Encryption passphrase</div><div class="help">${state.passphrase ? '<span class="ok">Set</span>' : 'Not set'}</div></div>
+        ${f ? '' : `<button class="ghost" id="pset">${state.passphrase ? 'Change passphrase' : 'Set passphrase'}</button>`}</div>
+      ${f ? `<div class="form">
+        <label>Passphrase<input type="password" id="pa" value="${esc(f.a)}"></label>
+        <label>Repeat passphrase<input type="password" id="pb" value="${esc(f.b)}"></label>
+        ${state.passError ? `<div class="err" role="alert">${esc(state.passError)}</div>` : ''}
+        <div><button class="btn" id="psave">Save</button> <button class="ghost" id="pcancel">Cancel</button></div></div>` : ''}
+    </div>`;
+  },
+  'settings/backups': () => `<h1>Backups</h1>
+    ${state.backupError ? `<p class="err" role="alert">${esc(state.backupError)}</p>` : ''}
+    <div class="card">
+      <div class="row"><div><div class="label">Automatic backups</div>
+        <div class="help">${state.backupsOn ? `<span class="ok">On.</span> Schedule: ${esc(state.schedule)}.` : 'Off'}</div></div>
+        <label class="switch"><input type="checkbox" id="bon" role="switch" aria-label="Automatic backups" ${state.backupsOn ? 'checked' : ''}> ${state.backupsOn ? 'On' : 'Off'}</label></div>
+      <div class="row"><div><div class="label">Destination</div></div>
+        <select id="bdest" aria-label="Destination"><option value="none" ${state.destination === 'none' ? 'selected' : ''}>None</option>
+          ${state.storage.map((s) => `<option ${state.destination === s.provider ? 'selected' : ''}>${esc(s.provider)}</option>`).join('')}</select></div>
+      <div class="row"><div><div class="label">Folder to back up</div></div>
+        <input type="text" id="bfolder" aria-label="Folder to back up" placeholder="/path/to/folder" value="${esc(state.folder)}"></div>
+      <div class="row"><div><div class="label">Schedule</div></div>
+        <select id="bsched" aria-label="Schedule">${['Every hour', 'Daily', 'Weekly', 'Manually'].map((s) => `<option value="${s.toLowerCase()}" ${state.schedule === s.toLowerCase() ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+    </div>`,
+};
+
+function render() {
+  const r = route();
+  const page = pages[r] || pages.notes;
+  const inSettings = r.startsWith('settings/');
+  const cur = r.split('/')[1];
+  const app = document.getElementById('app');
+  app.replaceChildren($(`<header><span class="brand">Quill</span>
+      ${inSettings ? '<button class="ghost" data-go="notes">Done</button>' : '<button class="ghost" data-go="settings/general">Settings</button>'}</header>
+    <div class="shell">${inSettings ? `<nav aria-label="Settings">${SETTINGS.map((n) => `<button data-go="settings/${n.toLowerCase()}" ${cur === n.toLowerCase() ? 'aria-current="page"' : ''}>${n}</button>`).join('')}</nav>` : ''}
+    <main>${page()}</main></div>`));
+  app.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => go(b.dataset.go)));
+  const on = (id, ev, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(ev, fn); };
+  on('sadd', 'click', () => { state.storageForm = { provider: PROVIDERS[0], key: '', secret: '' }; state.storageError = ''; render(); });
+  on('scancel', 'click', () => { state.storageForm = null; state.storageError = ''; render(); });
+  on('sprovider', 'change', (e) => { state.storageForm.provider = e.target.value; state.storageError = ''; render(); });
+  on('skey', 'input', (e) => { state.storageForm.key = e.target.value; });
+  on('ssecret', 'input', (e) => { state.storageForm.secret = e.target.value; });
+  on('sconnect', 'click', () => {
+    const f = state.storageForm;
+    if (NEEDS_KEYS.includes(f.provider) && !(f.key && f.secret)) { state.storageError = 'Enter an access key ID and secret access key.'; return render(); }
+    state.storage.push({ provider: f.provider }); state.storageForm = null; state.storageError = ''; render();
+  });
+  on('pset', 'click', () => { state.passForm = { a: '', b: '' }; state.passError = ''; render(); });
+  on('pcancel', 'click', () => { state.passForm = null; state.passError = ''; render(); });
+  on('pa', 'input', (e) => { state.passForm.a = e.target.value; });
+  on('pb', 'input', (e) => { state.passForm.b = e.target.value; });
+  on('psave', 'click', () => {
+    const f = state.passForm;
+    if (f.a.length < 8) { state.passError = 'Use at least 8 characters.'; return render(); }
+    if (f.a !== f.b) { state.passError = 'The passphrases do not match.'; return render(); }
+    state.passphrase = f.a; state.passForm = null; state.passError = ''; render();
+  });
+  on('bdest', 'change', (e) => { state.destination = e.target.value; });
+  on('bfolder', 'input', (e) => { state.folder = e.target.value; });
+  on('bsched', 'change', (e) => { state.schedule = e.target.value; render(); });
+  on('bon', 'change', (e) => {
+    if (!e.target.checked) { state.backupsOn = false; state.backupError = ''; return render(); }
+    const ready = state.destination !== 'none' && state.folder.trim() && state.passphrase;
+    state.backupsOn = Boolean(ready);
+    state.backupError = ready ? '' : "Couldn't turn on backups. Check your settings.";
+    render();
+  });
+}
+window.addEventListener('hashchange', render);
+render();
+</script>
+</body>
+</html>

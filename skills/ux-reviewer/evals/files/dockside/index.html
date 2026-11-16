@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Dockside</title>
+<style>
+  :root { color-scheme: dark; --bg:#0b0b0e; --panel:#14141a; --line:#2a2a34; --text:#ececf2; --muted:#9a9aa9; --accent:#7d6df2; --warn:#d9a94a; --ok:#58b98a; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; background:var(--bg); color:var(--text); }
+  .shell { display:flex; min-height:100vh; }
+  nav { width:210px; padding:18px 12px; border-right:1px solid var(--line); display:flex; flex-direction:column; gap:4px; }
+  nav .brand { font-weight:700; padding:6px 10px 14px; }
+  nav button { all:unset; cursor:pointer; padding:7px 10px; border-radius:8px; color:var(--muted); }
+  nav button:hover, nav button[aria-current="page"] { background:var(--panel); color:var(--text); }
+  nav button:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  nav .spacer { flex:1; }
+  main { flex:1; padding:28px 36px; max-width:980px; }
+  h1 { font-size:20px; margin:0 0 14px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; }
+  .row { display:flex; gap:24px; align-items:center; justify-content:space-between; padding:18px 20px; border-top:1px solid var(--line); }
+  .row:first-child { border-top:0; }
+  .row .label { font-weight:600; }
+  .row .help, .help { color:var(--muted); font-size:14px; margin-top:4px; max-width:560px; }
+  .row .controls { display:flex; gap:10px; flex:none; }
+  select, input[type=text] { background:#101015; color:var(--text); border:1px solid var(--line); border-radius:10px; padding:8px 12px; font:inherit; min-width:190px; }
+  select:disabled { opacity:.55; }
+  button.btn { background:var(--accent); color:#fff; border:0; border-radius:10px; padding:8px 14px; font:inherit; cursor:pointer; }
+  button.ghost { background:transparent; color:var(--text); border:1px solid var(--line); border-radius:10px; padding:8px 14px; font:inherit; cursor:pointer; }
+  button.icon { all:unset; cursor:pointer; color:var(--muted); margin-left:8px; }
+  .warn { color:var(--warn); }
+  .ok { color:var(--ok); }
+  .err { color:#e2706f; font-size:14px; }
+  .list { padding:6px 20px 14px; }
+  .item { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-top:1px solid var(--line); }
+  .item:first-child { border-top:0; }
+  .form { padding:16px 20px; display:grid; gap:12px; border-top:1px solid var(--line); }
+  .form label { display:grid; gap:4px; font-size:14px; color:var(--muted); }
+  .form .actions { display:flex; gap:10px; }
+  .thread { padding:12px 20px; border-top:1px solid var(--line); color:var(--muted); }
+  .thread:first-child { border-top:0; }
+  .thread b { color:var(--text); font-weight:600; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// Eval fixture for the ux-reviewer skill. In-memory state only: a reload is a fresh first run.
+const state = {
+  providers: [],            // {type, name, account}
+  loginsManager: 'off',     // 'off' | provider index as string
+  outside: 'ask',
+  saveVault: 'personal',
+  saveItem: 'Dockside Sign-ups',
+  form: null,               // add-provider draft
+  formError: '',
+};
+const SETTINGS = ['General', 'Appearance', 'Agents', 'Logins', 'Secrets', 'Devices', 'Advanced'];
+const APP = ['Threads', 'Projects', 'Automations'];
+const $ = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content; };
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const route = () => (location.hash.replace(/^#\/?/, '') || 'threads').toLowerCase();
+const go = (r) => { location.hash = '#/' + r; };
+const lockboxProviders = () => state.providers.map((p, i) => ({...p, i})).filter((p) => p.type === 'Lockbox');
+
+function appNav(current) {
+  return `<nav aria-label="Main">
+    <div class="brand">Dockside</div>
+    ${APP.map((n) => `<button data-go="${n.toLowerCase()}" ${current === n.toLowerCase() ? 'aria-current="page"' : ''}>${n}</button>`).join('')}
+    <div class="spacer"></div>
+    <button data-go="settings/general">Settings</button>
+  </nav>`;
+}
+function settingsNav(current) {
+  return `<nav aria-label="Settings">
+    <button data-go="threads">&larr; Back to app</button>
+    <div class="brand" style="padding-top:14px">Settings</div>
+    ${SETTINGS.map((n) => `<button data-go="settings/${n.toLowerCase()}" ${current === n.toLowerCase() ? 'aria-current="page"' : ''}>${n}</button>`).join('')}
+  </nav>`;
+}
+const toggleRow = (label, help, on) => `<div class="row"><div><div class="label">${label}</div><div class="help">${help}</div></div>
+  <div class="controls"><select aria-label="${label}"><option ${on ? 'selected' : ''}>On</option><option ${on ? '' : 'selected'}>Off</option></select></div></div>`;
+
+const pages = {
+  threads: () => `<h1>Threads</h1><div class="card">
+    <div class="thread"><b>Fix flaky checkout test</b><br>Agent finished 12 minutes ago</div>
+    <div class="thread"><b>Upgrade to Node 22</b><br>Waiting for your review</div>
+    <div class="thread"><b>Draft release notes</b><br>Agent is working</div></div>`,
+  projects: () => `<h1>Projects</h1><div class="card"><div class="thread"><b>shop-web</b><br>~/code/shop-web</div><div class="thread"><b>shop-api</b><br>~/code/shop-api</div></div>`,
+  automations: () => `<h1>Automations</h1><div class="card"><div class="thread">No automations yet.</div></div>`,
+  'settings/general': () => `<h1>General</h1><div class="card">
+    ${toggleRow('Check for updates automatically', 'Dockside downloads updates in the background and installs them on restart.', true)}
+    ${toggleRow('Send anonymous usage data', 'Helps us find crashes. Never includes code or prompts.', false)}
+    <div class="row"><div><div class="label">Language</div></div><div class="controls"><select aria-label="Language"><option>English</option><option>Deutsch</option><option>Español</option></select></div></div></div>`,
+  'settings/appearance': () => `<h1>Appearance</h1><div class="card">
+    <div class="row"><div><div class="label">Theme</div></div><div class="controls"><select aria-label="Theme"><option>Dark</option><option>Light</option><option>Match system</option></select></div></div>
+    <div class="row"><div><div class="label">Text size</div></div><div class="controls"><select aria-label="Text size"><option>Small</option><option selected>Medium</option><option>Large</option></select></div></div></div>`,
+  'settings/agents': () => `<h1>Agents</h1><div class="card">
+    <div class="row"><div><div class="label">Default agent</div><div class="help">Used for new threads unless you pick another.</div></div><div class="controls"><select aria-label="Default agent"><option>Navigator</option><option>Builder</option></select></div></div>
+    ${toggleRow('Run commands without asking', 'Agents run shell commands in the project folder without a confirmation each time.', false)}</div>`,
+  'settings/devices': () => `<h1>Devices</h1><div class="card"><div class="list"><div class="item"><span>This Mac</span><span class="ok">Online</span></div></div></div>`,
+  'settings/advanced': () => `<h1>Advanced</h1><div class="card"><div class="list">
+    <div class="item"><span class="label">Detected tools</span><span></span></div>
+    <div class="item"><span>git</span><span class="help">2.47.1</span></div>
+    <div class="item"><span>node</span><span class="help">22.11.0</span></div>
+    <div class="item"><span>Lockbox CLI</span><span class="help">2.30.0, signed in as dana@example.com</span></div></div></div>`,
+  'settings/logins': () => {
+    const lb = lockboxProviders();
+    const off = state.loginsManager === 'off';
+    return `<h1>Logins</h1><div class="card">
+      <div class="row"><div><div class="label">Password managers for logins</div>
+        <div class="help">Add a Lockbox provider in Settings &gt; Secrets to let agents sign in to sites.</div></div>
+        <div class="controls"><select id="manager" aria-label="Password managers for logins" ${lb.length ? '' : 'disabled'}>
+          <option value="off" ${off ? 'selected' : ''}>Off</option>
+          ${lb.map((p) => `<option value="${p.i}" ${state.loginsManager === String(p.i) ? 'selected' : ''}>Lockbox (${esc(p.name)})</option>`).join('')}
+        </select></div></div>
+      <div class="row"><div><div class="label">Outside this machine's service accounts</div>
+        <div class="help">Logins, identities and secrets for commands in a service account's vaults are used without asking. Anything else asks the Dockside desktop app on your Mac, where Lockbox needs Touch ID. Refuse suits machines left unattended.</div></div>
+        <div class="controls"><select id="outside" aria-label="Outside this machine's service accounts">
+          <option value="ask" ${state.outside === 'ask' ? 'selected' : ''}>Ask my device</option>
+          <option value="refuse" ${state.outside === 'refuse' ? 'selected' : ''}>Refuse</option></select></div></div>
+      <div class="row"><div><div class="label">Save new logins to <button class="icon" id="reset" aria-label="Reset to default" title="Reset to default">&#8634;</button></div>
+        <div class="help">Agents signing up for new accounts save the generated password here before sending the form. A service account needs write access to this vault, and its permissions cannot be changed after it is created.</div>
+        ${off ? '<div class="help">This password manager is not chosen for logins above, so agents cannot create logins.</div>' : ''}</div>
+        <div class="controls"><select id="vault" aria-label="Vault">
+          ${['personal', 'work'].map((v) => `<option ${state.saveVault === v ? 'selected' : ''}>${v}</option>`).join('')}</select>
+          <input type="text" id="item" aria-label="Item name" value="${esc(state.saveItem)}"></div></div>
+    </div>`;
+  },
+  'settings/secrets': () => {
+    const f = state.form;
+    return `<h1>Secrets</h1><p class="help" style="margin:0 0 14px">Providers let agents and commands read secrets without pasting them into chat.</p>
+    <div class="card"><div class="list">
+      ${state.providers.length ? state.providers.map((p, i) => `<div class="item"><span>${esc(p.type)} &middot; ${esc(p.name)}${p.account ? ` &middot; <span class="ok">Connected</span>` : ''}</span><button class="ghost" data-remove="${i}">Remove</button></div>`).join('') : '<div class="item"><span class="help">No providers yet.</span></div>'}
+      </div>
+      ${f ? `<div class="form">
+        <label>Type<select id="ptype">${['Environment file', 'Lockbox', 'macOS Keychain'].map((t) => `<option ${f.type === t ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+        <label>Name<input type="text" id="pname" value="${esc(f.name)}"></label>
+        ${f.type === 'Environment file' ? `<label>Path<input type="text" id="ppath" placeholder=".env" value="${esc(f.path || '')}"></label>` : ''}
+        ${f.type === 'Lockbox' ? `<label>Sign-in address<input type="text" id="paddr" value="${esc(f.addr)}"></label>
+          <div>${f.account ? `<span class="ok">Connected as ${esc(f.account)} &middot; vaults: personal, work</span>` : '<button class="ghost" id="connect">Connect</button>'}</div>` : ''}
+        ${state.formError ? `<div class="err" role="alert">${esc(state.formError)}</div>` : ''}
+        <div class="actions"><button class="btn" id="save">Save provider</button><button class="ghost" id="cancel">Cancel</button></div></div>`
+      : `<div class="form"><div class="actions"><button class="btn" id="add">Add provider</button></div></div>`}
+    </div>`;
+  },
+};
+
+function render() {
+  const r = route();
+  const page = pages[r] || pages.threads;
+  const inSettings = r.startsWith('settings/');
+  const app = document.getElementById('app');
+  app.replaceChildren($(`<div class="shell">${inSettings ? settingsNav(r.split('/')[1]) : appNav(pages[r] ? r : 'threads')}<main>${page()}</main></div>`));
+  app.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => go(b.dataset.go)));
+  app.querySelectorAll('[data-remove]').forEach((b) => b.addEventListener('click', () => {
+    state.providers.splice(Number(b.dataset.remove), 1); state.loginsManager = 'off'; render(); }));
+  const on = (id, ev, fn) => { const el = document.getElementById(id); if (el) el.addEventListener(ev, fn); };
+  on('manager', 'change', (e) => { state.loginsManager = e.target.value; render(); });
+  on('outside', 'change', (e) => { state.outside = e.target.value; });
+  on('vault', 'change', (e) => { state.saveVault = e.target.value; });
+  on('item', 'input', (e) => { state.saveItem = e.target.value; });
+  on('reset', 'click', () => { state.saveVault = 'personal'; state.saveItem = 'Dockside Sign-ups'; render(); });
+  on('add', 'click', () => { state.form = { type: 'Environment file', name: 'My provider', addr: 'my.lockbox.example', account: '' }; state.formError = ''; render(); });
+  on('cancel', 'click', () => { state.form = null; state.formError = ''; render(); });
+  on('ptype', 'change', (e) => { state.form.type = e.target.value; state.formError = ''; render(); });
+  on('pname', 'input', (e) => { state.form.name = e.target.value; });
+  on('ppath', 'input', (e) => { state.form.path = e.target.value; });
+  on('paddr', 'input', (e) => { state.form.addr = e.target.value; });
+  on('connect', 'click', () => { state.form.account = 'dana@example.com'; state.formError = ''; render(); });
+  on('save', 'click', () => {
+    const f = state.form;
+    if (f.type === 'Lockbox' && !f.account) { state.formError = 'Connect to Lockbox before saving.'; return render(); }
+    if (f.type === 'Environment file' && !f.path) { state.formError = 'Enter the path to an environment file.'; return render(); }
+    state.providers.push({ type: f.type, name: f.name || f.type, account: f.account });
+    state.form = null; state.formError = ''; render();
+  });
+}
+window.addEventListener('hashchange', render);
+render();
+</script>
+</body>
+</html>

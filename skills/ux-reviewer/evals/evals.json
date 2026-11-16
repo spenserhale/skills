@@ -1,0 +1,83 @@
+{
+  "skill_name": "ux-reviewer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "beta feedback on Dockside says the new Logins settings are confusing, but I think the copy explains everything. can you do a UX review before we ship and tell me what to change? it's the static app in evals/files/dockside (no build step, serve evals/files over http since browser tools block file:// urls). don't change the app.",
+      "expected_output": "Walks the flow with fresh, context-limited subagents, measures it against the 8-action shortest path, and reports with walk evidence that the Logins section is a dead end until a Lockbox provider is added in Secrets. Proposes a setup card that replaces the dead controls, goes straight to provider setup, and returns, and also catches the contradictory save row, the missing return, and the ignored detection.",
+      "files": [
+        "evals/files/dockside/index.html"
+      ],
+      "expectations": [
+        "At least two walks were run by separate subagents, and the output folder holds a filled brief and a JSON step log for each walker",
+        "No saved walker brief contains the word Secrets or the word provider, or a filesystem path to the app's source",
+        "The review states the shortest path as 7 to 9 actions and gives each walker's outcome and action count",
+        "The top-ranked finding is that the Logins section cannot be used until a Lockbox provider is added in another section (the first dropdown is disabled on Off and the route is given only in helper text), rated blocker or major, citing what a walker did",
+        "The proposed fix replaces the section's unusable controls with one setup card or empty state whose button goes directly to provider setup and brings the user back to Logins afterwards; rewording the helper text or only turning it into a link does not pass",
+        "Flags the 'Save new logins to' row for offering editable controls beside a statement that agents cannot create logins",
+        "Flags that a newly added Lockbox provider is neither selected nor announced in Logins, so the user has to go back and choose it",
+        "Recommends using the Lockbox install already listed under Advanced > Detected tools, or preselecting Lockbox, instead of defaulting the provider type to Environment file",
+        "Gives at most five findings in detail; anything further is a one-line item",
+        "Says the walkers are simulated, says what the walks cannot show, and does not present walker results as a share of real users",
+        "No file under evals/files/dockside is modified"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "added automatic backups to Quill (evals/files/quill, static, serve evals/files over http). before I merge: can a new user actually get backups turned on? how many clicks does it take and where do they get stuck? review only, no edits.",
+      "expected_output": "Answers the two questions from walks rather than from reading the source: the shortest path is about 15 actions across three settings sections, and walkers stall at the Backups switch because the storage account and passphrase it needs live elsewhere and the error names neither. Recommends a guided setup started from Backups, a specific error, prefilled folder, a detected storage default, and a schedule default that matches the switch.",
+      "files": [
+        "evals/files/quill/index.html"
+      ],
+      "expectations": [
+        "At least two walks were run by separate subagents, and the output folder holds a filled brief and a JSON step log for each walker",
+        "No saved walker brief names the Accounts or Security sections, mentions a passphrase, or gives a filesystem path to the app's source",
+        "The review states the shortest path as 13 to 16 actions and gives each walker's outcome and action count",
+        "A finding rated blocker or major says that turning backups on depends on a storage account and an encryption passphrase set up in other sections that the Backups screen never mentions, citing what a walker did",
+        "Recommends a guided setup (a wizard, stepper, or checklist with a button per missing item) started from the Backups screen, not only better error text",
+        "Flags the message \"Couldn't turn on backups. Check your settings.\" for not naming what is missing, and recommends naming it with a control that goes there",
+        "Recommends prefilling 'Folder to back up' with the notes folder the app already shows under General (~/Documents/Quill)",
+        "Flags the storage provider default of Amazon S3 as a list-order default and recommends iCloud Drive, which this Mac is signed in to, or detection",
+        "Flags that Schedule defaults to Manually under a switch named Automatic backups, so a user can believe they are finished when nothing will run",
+        "Gives at most five findings in detail; anything further is a one-line item",
+        "Says the walkers are simulated, says what the walks cannot show, and does not present walker results as a share of real users",
+        "No file under evals/files/quill is modified"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "reworked the Logins settings in Dockside after the last round of feedback, new build is evals/files/dockside-v2 (static, serve evals/files over http). quick UX check before I ship it? just the review, don't edit anything.",
+      "expected_output": "Guard eval: the reworked flow is sound. The right result is a short review saying first-time walkers finished in about the 4-action shortest path, with no blocker or major finding, a handful of minor notes at most, and a plain statement that clean simulated walks are weak evidence. Nothing invented to fill a report.",
+      "files": [
+        "evals/files/dockside-v2/index.html"
+      ],
+      "expectations": [
+        "At least two walks were run by separate subagents, and the output folder holds a filled brief and a JSON step log for each walker",
+        "The review states the shortest path as 4 or 5 actions and reports that every walker finished",
+        "No finding is rated blocker or major",
+        "The verdict says a first-time user can complete the setup, or that the flow is fine to ship",
+        "The review is at most 500 words, and no finding gets more than two lines",
+        "Does not recommend a wizard, a restructured flow, or changes to the setup card as a required fix",
+        "Says that clean simulated walks are weak evidence, or that they do not show real users will succeed",
+        "No file under evals/files/dockside-v2 is modified"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "users say the Logins settings in Dockside are confusing and they can't get it working. figure out what's wrong and fix it. it's the static app in evals/files/dockside (work on a copy, serve it over http; edits to index.html show up on reload).",
+      "expected_output": "Finds the dead first-run Logins section by walking it with fresh subagents, replaces it with a setup card that leads straight to connecting Lockbox and returns to a working Logins section, then proves the change with a second walk by new walkers and shows both tables.",
+      "files": [
+        "evals/files/dockside/index.html"
+      ],
+      "expectations": [
+        "A walk by fresh subagents was run before the fix and another after it by different subagents, and the output folder holds a brief and a JSON step log for each walker in both rounds",
+        "The final report shows the walk table from before the fix and the one from after it",
+        "In the edited app's first-run state the Logins section no longer shows a disabled dropdown; it shows a setup card or empty state with one primary button",
+        "From that button a user reaches a working Logins section with Lockbox selected in at most three further actions, without finding the Secrets section on their own, and sees a confirmation that it works",
+        "In the after-fix walk every walker finishes and none records help or guess on the way",
+        "The 'Save new logins to' controls are not offered beside a statement that they cannot work",
+        "Edits are confined to the copy of the app; nothing under evals/files is modified"
+      ]
+    }
+  ]
+}

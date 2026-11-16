@@ -1,0 +1,22 @@
+[
+  {"query": "just wired up the new billing settings page in the dashboard (src/pages/settings/Billing.tsx). before I call it done can you check whether a new customer could actually figure out how to add a card?", "should_trigger": true},
+  {"query": "users keep emailing support saying they can't find where to turn on 2FA. it's under Account > Security > Advanced. is that confusing? what should we change", "should_trigger": true},
+  {"query": "[screenshot: a settings panel with three rows, the first dropdown greyed out on Off] people say they can't change this dropdown and the page is confusing. what's wrong with this screen", "should_trigger": true},
+  {"query": "how many clicks does it take a brand new user to connect their slack workspace in our app? it's running on localhost:3000", "should_trigger": true},
+  {"query": "review the UX of the onboarding flow on the feat/onboarding branch, I think step 3 loses people but not sure why", "should_trigger": true},
+  {"query": "finished the csv import wizard. can you have someone who's never seen it try to import a file and tell me where they get lost", "should_trigger": true},
+  {"query": "the empty state for the Reports tab just says 'No reports'. is it obvious enough what to do next or will people bounce", "should_trigger": true},
+  {"query": "PM says the SSO setup is 'not intuitive', no specifics. app's at http://localhost:5173/admin/sso. find out what's actually wrong with it", "should_trigger": true},
+  {"query": "about to merge the notification preferences form. sanity check that it's usable first? not the code, the actual form", "should_trigger": true},
+  {"query": "we shipped the api keys panel last week and the first thing three customers did was open a ticket asking how to create a key. the button is there!! can you look at why nobody sees it", "should_trigger": true},
+  {"query": "review my diff for the settings page, I think there's a race condition in the save handler when two fields change at once", "should_trigger": false},
+  {"query": "check the settings page against WCAG AA, especially colour contrast and focus order, and list the violations", "should_trigger": false},
+  {"query": "the settings page feels dated. restyle it: better spacing, a nicer font, maybe softer cards", "should_trigger": false},
+  {"query": "mock up three different layouts for the onboarding flow so I can compare them side by side in chat", "should_trigger": false},
+  {"query": "write playwright e2e tests for the login form: valid login, wrong password, locked account", "should_trigger": false},
+  {"query": "the dropdown on the settings page doesn't open when I click it in Safari, works in Chrome. can you debug it", "should_trigger": false},
+  {"query": "our signup conversion dropped 12% last week. pull the numbers from funnel.csv and tell me which step is losing people", "should_trigger": false},
+  {"query": "explain Nielsen's 10 usability heuristics with an example each, I have a design interview tomorrow", "should_trigger": false},
+  {"query": "convert this Figma settings mock (settings-v3.png) into a React component with Tailwind, match it pixel for pixel", "should_trigger": false},
+  {"query": "run lighthouse on the landing page and fix whatever is dragging the performance score down", "should_trigger": false}
+]

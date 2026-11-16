@@ -1,0 +1,4 @@
+interface:
+  display_name: "UX Reviewer"
+  short_description: "Test whether first-time users can finish a UI flow"
+  default_prompt: "Use $ux-reviewer to review this flow before it ships."
