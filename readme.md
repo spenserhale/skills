@@ -44,6 +44,7 @@ Install once to your user profile; available in every project.
 | [mcp-creator](skills/mcp-creator/SKILL.md) | Build MCP servers — overview + router into the official spec (architecture, transports, resources, prompts, auth, client features) with an opinionated best-practices guide; hands off tools to `mcp-tools-creator` |
 | [mcp-tools-creator](skills/mcp-tools-creator/SKILL.md) | Design MCP tools agents use reliably — `domain_verb_noun` naming, intent over CRUD, strong schemas, contextful returns, error/annotation patterns; spec + opinionated best-practices |
 | [sh-skill-creator](skills/sh-skill-creator/SKILL.md) | Create, restructure, review, or audit agent skills against a 2026 rule set — trigger-first descriptions, lean bodies, one-level references, evals with a baseline, security audit — with a scaffolder and a spec + house-rules validator |
+| [playwright-cli](skills/playwright-cli/SKILL.md) | Give parallel tasks separate Playwright CLI sessions and tabs in a shared signed-in Chrome or Edge profile. |
 | [outlook-web-rules](skills/outlook-web-rules/SKILL.md) | Read, audit, create, and edit Outlook web rules through a signed-in browser; focused observations, exact sender + subject filters, duplicate checks, and verified edits |
 | [ux-reviewer](skills/ux-reviewer/SKILL.md) | Usability review of a UI flow, with evidence: fresh, context-limited subagents walk it as first-time users (hurried, everyday, careful) and their step logs are scored against the shortest path for actions, dead ends, and steps only the small print explained. Then pattern rules for setup and settings: a setup card in place of controls that cannot work yet, routes as controls, detect before asking, defaults, guided flows. Ships a walker brief, a leak checker for it, the scorer, and a fix-and-walk-again loop |
 | [video-pitch](skills/video-pitch/SKILL.md) | Produce a ~20-second video pitch of a feature, tool, PR, or app for customer success, sales, or stakeholders — narration over a real screen-recorded demo, frame-exact HTML motion scenes, captions, poster, share blurb; local tools only (ffmpeg, Chrome, playwright-core, any TTS) |
@@ -72,6 +73,7 @@ npx skills add spenserhale/skills --global --agent '*' -y \
   --skill mcp-creator \
   --skill mcp-tools-creator \
   --skill sh-skill-creator \
+  --skill playwright-cli \
   --skill outlook-web-rules \
   --skill ux-reviewer \
   --skill video-pitch

@@ -1,0 +1,38 @@
+{
+  "skill_name": "playwright-cli",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Two agents need to use the same signed-in Chrome profile at once to inspect the calendar.",
+      "expected_output": "Independent connection names and task-owned tabs in the shared profile.",
+      "files": [],
+      "expectations": [
+        "Runs the attachment launcher separately per task",
+        "Uses each printed session name on every command",
+        "Cleans up only the task?s own tabs and attachment"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Use Playwright in Edge Profile 2 to check a signed-in page. Chrome already has an extension token in the environment.",
+      "expected_output": "Attaches to Edge Profile 2 and uses interactive approval.",
+      "files": [],
+      "expectations": [
+        "Selects Edge and Profile 2",
+        "Uses interactive approval without forwarding Chrome?s token",
+        "Opens the task page in its own tab"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Use Playwright CLI to test the landing page in a fresh browser without using my signed-in profile.",
+      "expected_output": "A uniquely named fresh session is launched and closed.",
+      "files": [],
+      "expectations": [
+        "Uses open with an explicit browser and unique session name",
+        "Keeps follow-up commands scoped to that session",
+        "Closes the launched session"
+      ]
+    }
+  ]
+}
